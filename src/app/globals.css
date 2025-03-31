@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-end-rgb));
+}
+
+.dark .prose {
+  color: #e2e8f0; /* text-gray-200 */
+}
+
+.dark .prose a {
+  color: #93c5fd; /* text-blue-300 */
+}
+
+.dark .prose strong {
+  color: #f1f5f9; /* text-gray-100 */
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4 {
+  color: #f1f5f9; /* text-gray-100 */
+}
+
+.dark .prose blockquote {
+  color: #cbd5e1; /* text-gray-300 */
+  border-left-color: #475569; /* border-gray-600 */
+}
+
+.dark .prose code {
+  color: #f1f5f9; /* text-gray-100 */
+  background-color: #1e293b; /* bg-gray-800 */
+}
+
+.dark .prose hr {
+  border-color: #475569; /* border-gray-600 */
+}
+
+.dark .prose ol li:before {
+  color: #cbd5e1; /* text-gray-300 */
+}
+
+.dark .prose ul li:before {
+  background-color: #cbd5e1; /* bg-gray-300 */
+} 
