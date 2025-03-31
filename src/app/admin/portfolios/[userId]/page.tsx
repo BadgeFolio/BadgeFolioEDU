@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { User } from '@/lib/models';
 import dbConnect from '@/lib/mongoose';
-import { Portfolio } from '@/components/portfolio/Portfolio';
+import { ClientPortfolio } from '@/components/portfolio/ClientPortfolio';
 import { Types } from 'mongoose';
 
 interface Props {
@@ -60,7 +60,7 @@ export default async function StudentPortfolioPage({ params }: Props) {
         <p className="text-gray-600">{student.email}</p>
       </div>
       
-      <Portfolio userId={params.userId} />
+      <ClientPortfolio userId={params.userId} />
     </div>
   );
 } 
