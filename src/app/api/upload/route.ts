@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
 interface CloudinaryUploadResult {
   secure_url: string;
@@ -44,10 +44,13 @@ export async function POST(request: Request) {
             folder: 'evidence',
             resource_type: 'auto',
           },
-          (error, result) => {
+          (error, result: UploadApiResponse | undefined) => {
             if (error) reject(error);
             else if (!result) reject(new Error('No upload result received'));
-            else resolve(result as CloudinaryUploadResult);
+            else resolve({
+              ...result,
+              secure_url: result.secure_url
+            } as CloudinaryUploadResult);
           }
         );
 
