@@ -41,18 +41,18 @@ export default function BadgeList({ badges, isSelectionMode = false, selectedBad
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {badges.map((badge) => (
         <div
-          key={badge.id}
+          key={badge._id}
           className={`bg-white overflow-hidden shadow rounded-lg relative ${
             isSelectionMode ? 'cursor-pointer hover:shadow-md transition-shadow' : ''
           }`}
-          onClick={() => isSelectionMode && onBadgeSelect?.(badge.id)}
+          onClick={() => isSelectionMode && onBadgeSelect?.(badge._id)}
         >
           {isSelectionMode && (
             <div className="absolute top-2 right-2 z-10">
               <input
                 type="checkbox"
-                checked={selectedBadges.includes(badge.id)}
-                onChange={() => onBadgeSelect?.(badge.id)}
+                checked={selectedBadges.includes(badge._id)}
+                onChange={() => onBadgeSelect?.(badge._id)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 onClick={(e) => e.stopPropagation()}
               />
@@ -76,7 +76,7 @@ export default function BadgeList({ badges, isSelectionMode = false, selectedBad
             {!isSelectionMode && (
               <div className="mt-4">
                 <Link
-                  href={`/badges/${badge.id}`}
+                  href={`/badges/${badge._id}`}
                   className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   View Details
