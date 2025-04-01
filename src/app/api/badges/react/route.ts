@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { Badge } from '@/lib/models';
+import mongoose from 'mongoose';
 
 interface Reaction {
   type: '👏' | '🎉' | '🌟' | '🏆' | '💪';
@@ -36,11 +37,11 @@ export async function POST(request: Request) {
 
     // Initialize reactions array if it doesn't exist
     if (!badge.reactions) {
-      badge.reactions = [];
+      badge.reactions = [] as any;
     }
 
     // Handle the reaction (add or remove)
-    const reactionIndex = badge.reactions.findIndex((r: Reaction) => r.type === type);
+    const reactionIndex = badge.reactions.findIndex((r: any) => r.type === type);
     
     if (reactionIndex > -1) {
       // Check if user has already reacted
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
     }
 
     // Remove reactions with no users
-    badge.reactions = badge.reactions.filter((r: Reaction) => r.users.length > 0);
+    badge.reactions = badge.reactions.filter((r: any) => r.users.length > 0) as any;
 
     // Save the updated badge
     await badge.save();

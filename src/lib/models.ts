@@ -31,7 +31,7 @@ const badgeSchema = new mongoose.Schema({
   parentBadgeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Badge' },
   pathwayId: { type: mongoose.Schema.Types.ObjectId, ref: 'Pathway' },
   reactions: [{
-    type: { type: String, enum: ['👏', '🎉', '🌟', '🏆', '💪'] },
+    type: { type: String, enum: ['👏', '🎉', '🌟', '🏆', '💪'], required: true },
     users: [{ type: String }]
   }]
 }, { timestamps: true });
