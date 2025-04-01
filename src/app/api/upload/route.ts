@@ -46,7 +46,8 @@ export async function POST(request: Request) {
           },
           (error, result) => {
             if (error) reject(error);
-            else resolve(result);
+            else if (!result) reject(new Error('No upload result received'));
+            else resolve(result as CloudinaryUploadResult);
           }
         );
 
