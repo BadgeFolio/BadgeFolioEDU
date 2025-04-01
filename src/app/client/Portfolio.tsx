@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import Image from 'next/image';
+import { User } from '@/lib/models';
+import dbConnect from '@/lib/mongoose';
 
 interface Badge {
   _id: string;
@@ -19,51 +21,37 @@ interface Submission {
   createdAt: string;
 }
 
+interface UserWithSubmissions {
+  submissions: Submission[];
+}
+
 interface PortfolioProps {
   userId: string;
 }
 
-export function Portfolio({ userId }: PortfolioProps) {
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchSubmissions() {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/submissions?userId=${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch submissions');
-        }
-        const data = await response.json();
-        setSubmissions(data || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchSubmissions();
-  }, [userId]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+async function getSubmissions(userId: string) {
+  await dbConnect();
+  const user = await User.findById(userId)
+    .populate('submissions.badgeId')
+    .select('submissions')
+    .lean();
+  
+  if (!user || !('submissions' in user)) {
+    return [];
   }
 
-  if (error) {
-    return (
-      <div className="text-red-500 p-4">
-        Error: {error}
-      </div>
-    );
-  }
+  return (user as unknown as UserWithSubmissions).submissions;
+}
 
+function LoadingSpinner() {
+  return (
+    <div className="flex justify-center items-center min-h-[200px]">
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
+
+function PortfolioContent({ submissions }: { submissions: Submission[] }) {
   const approvedSubmissions = submissions.filter(sub => sub.status === 'approved');
 
   if (approvedSubmissions.length === 0) {
@@ -98,5 +86,15 @@ export function Portfolio({ userId }: PortfolioProps) {
         </div>
       ))}
     </div>
+  );
+}
+
+export async function Portfolio({ userId }: PortfolioProps) {
+  const submissions = await getSubmissions(userId);
+
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <PortfolioContent submissions={submissions} />
+    </Suspense>
   );
 } 
