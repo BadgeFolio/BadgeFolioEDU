@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { User, Badge, Category } from '@/lib/models';
 import { v2 as cloudinary } from 'cloudinary';
+import { SortOrder } from 'mongoose';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -218,7 +219,7 @@ export async function GET(request: Request) {
     }
 
     // Sort by createdAt if getting recent badges, otherwise default sort
-    const sortOption = recent === 'true' ? { createdAt: -1 } : {};
+    const sortOption = recent === 'true' ? { createdAt: -1 as SortOrder } : undefined;
 
     const badges = await Badge.find(query)
       .populate('creatorId', 'email name')
