@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { User } from '@/lib/models';
 import dbConnect from '@/lib/mongoose';
-import { Portfolio } from '@/components/portfolio/Portfolio';
+import { Portfolio } from '@/app/client/Portfolio';
 import { Types } from 'mongoose';
 
 interface Props {
