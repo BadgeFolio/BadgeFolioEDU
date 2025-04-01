@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   images: {
-    unoptimized: true,
+    domains: ['res.cloudinary.com'],
+    unoptimized: process.env.NODE_ENV === 'production'
   },
-  basePath: '',
-  assetPrefix: '',
-  trailingSlash: true
+  basePath: process.env.NODE_ENV === 'production' ? '/badgefolio' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/badgefolio/' : '',
 }
 
 module.exports = nextConfig 
