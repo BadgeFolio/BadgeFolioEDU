@@ -37,6 +37,14 @@ declare module 'next-auth/jwt' {
 // List of allowed email domains
 const ALLOWED_DOMAINS = ['gardencity.k12.ny.us', 'gmail.com'];
 
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('Please provide process.env.NEXTAUTH_SECRET');
+}
+
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please provide process.env.MONGODB_URI');
+}
+
 const options: NextAuthOptions = {
   providers: [
     CredentialsProvider({

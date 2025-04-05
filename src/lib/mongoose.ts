@@ -1,32 +1,52 @@
 import mongoose from 'mongoose';
 
-if (!process.env.MONGODB_URI) {
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
   throw new Error('Please add your MongoDB URI to .env');
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
+declare global {
+  var mongoose: MongooseCache | undefined;
+}
+
+let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+
+if (!global.mongoose) {
+  global.mongoose = cached;
+}
 
 async function dbConnect() {
-  try {
-    if (mongoose.connection.readyState === 1) {
-      console.log('Already connected to MongoDB');
-      return mongoose.connection;
-    }
+  if (cached.conn) {
+    return cached.conn;
+  }
 
-    const { connection } = await mongoose.connect(MONGODB_URI, {
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
       ssl: true,
       tls: true,
       tlsAllowInvalidCertificates: true,
-    });
+    };
 
-    if (connection.readyState === 1) {
-      console.log('Connected to MongoDB');
-      return connection;
-    }
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    throw error;
+    cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mongoose) => {
+      return mongoose;
+    });
   }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
+  return cached.conn;
 }
 
 // Handle process termination

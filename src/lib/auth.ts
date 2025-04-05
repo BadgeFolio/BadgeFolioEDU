@@ -34,6 +34,14 @@ declare module 'next-auth/jwt' {
   }
 }
 
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('Please provide process.env.NEXTAUTH_SECRET');
+}
+
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please provide process.env.MONGODB_URI');
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
