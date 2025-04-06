@@ -2,6 +2,8 @@
 
 A platform for creating, earning, and managing digital badges in educational settings.
 
+Last deployment test: 2025-04-06 01:27 UTC
+
 ## Features
 
 - Google Sign-in and email/password authentication
