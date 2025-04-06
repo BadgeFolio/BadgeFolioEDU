@@ -29,20 +29,48 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      ssl: true,
-      tls: true,
-      tlsAllowInvalidCertificates: true,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      family: 4,
+      retryWrites: true
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mongoose) => {
-      return mongoose;
-    });
+    try {
+      console.log('Attempting to connect to MongoDB...');
+      cached.promise = mongoose.connect(MONGODB_URI as string, opts)
+        .then((mongoose) => {
+          console.log('MongoDB connected successfully');
+          mongoose.connection.on('error', (err) => {
+            console.error('MongoDB connection error:', err);
+          });
+          mongoose.connection.on('disconnected', () => {
+            console.log('MongoDB disconnected');
+            cached.conn = null;
+            cached.promise = null;
+          });
+          mongoose.connection.on('reconnected', () => {
+            console.log('MongoDB reconnected');
+          });
+          return mongoose;
+        })
+        .catch((err) => {
+          console.error('MongoDB connection error:', err);
+          cached.promise = null;
+          throw err;
+        });
+    } catch (error) {
+      console.error('Error during MongoDB connection setup:', error);
+      cached.promise = null;
+      throw error;
+    }
   }
 
   try {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
+    console.error('MongoDB connection failed:', e);
     throw e;
   }
 

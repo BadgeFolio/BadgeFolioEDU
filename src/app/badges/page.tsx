@@ -57,8 +57,8 @@ export default function Badges() {
           categoriesRes.json()
         ]);
 
-        setBadges(badgesData);
-        setCategories(categoriesData);
+        setBadges(Array.isArray(badgesData) ? badgesData : []);
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
 
         if (!isTeacher && submissionsRes) {
           const submissionsData = await submissionsRes.json();

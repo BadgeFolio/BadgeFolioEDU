@@ -171,7 +171,16 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    await dbConnect();
+    
+    try {
+      await dbConnect();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return NextResponse.json(
+        { error: 'Database connection failed', details: dbError instanceof Error ? dbError.message : 'Unknown error' },
+        { status: 500 }
+      );
+    }
 
     const { searchParams } = new URL(request.url);
     const creatorId = searchParams.get('creatorId');
@@ -196,6 +205,10 @@ export async function GET(request: Request) {
       } else {
         // Get user role
         const user = await User.findOne({ email: session.user.email });
+        if (!user) {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+        
         const isSuperAdmin = user?.email === 'emailmrdavola@gmail.com';
         
         // If not super admin and isPublic is specified, apply the filter
@@ -251,9 +264,13 @@ export async function GET(request: Request) {
 
     return NextResponse.json(formattedBadges);
   } catch (error) {
-    console.error('Error fetching badges:', error);
+    console.error('Error in badges API:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch badges', details: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Failed to fetch badges', 
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.stack : undefined : undefined
+      },
       { status: 500 }
     );
   }

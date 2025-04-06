@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import MainLayout from '@/components/layout/MainLayout';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import {
   ServerIcon,
   DocumentTextIcon,
   InformationCircleIcon,
+  KeyIcon,
 } from '@heroicons/react/24/outline';
 
 // Mock system settings data - in a real application, this would be fetched from an API
@@ -32,10 +33,62 @@ export default function SettingsPage() {
   const { data: session } = useSession();
   const [clearCacheLoading, setClearCacheLoading] = useState(false);
   const [runBackupLoading, setRunBackupLoading] = useState(false);
+  const [inviteCodes, setInviteCodes] = useState({
+    adminCode: '',
+    teacherCode: ''
+  });
+  const [updateInviteCodesLoading, setUpdateInviteCodesLoading] = useState(false);
   
   const isSuperAdmin = session?.user?.email === SUPER_ADMIN_EMAIL;
   const isAdmin = (session?.user as any)?.role === 'admin';
   
+  useEffect(() => {
+    fetchInviteCodes();
+  }, []);
+
+  const fetchInviteCodes = async () => {
+    try {
+      const response = await fetch('/api/admin/invite-codes');
+      if (!response.ok) throw new Error('Failed to fetch invite codes');
+      const data = await response.json();
+      setInviteCodes({
+        adminCode: data.adminCode || '',
+        teacherCode: data.teacherCode || ''
+      });
+    } catch (error) {
+      console.error('Error fetching invite codes:', error);
+      toast.error('Failed to fetch invite codes');
+    }
+  };
+
+  const handleUpdateInviteCodes = async () => {
+    setUpdateInviteCodesLoading(true);
+    try {
+      const response = await fetch('/api/admin/invite-codes', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          adminCode: inviteCodes.adminCode,
+          teacherCode: inviteCodes.teacherCode
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update invite codes');
+      }
+
+      toast.success('Invite codes updated successfully');
+    } catch (error) {
+      console.error('Error updating invite codes:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update invite codes');
+    } finally {
+      setUpdateInviteCodesLoading(false);
+    }
+  };
+
   const handleClearCache = async () => {
     setClearCacheLoading(true);
     try {
@@ -370,6 +423,63 @@ export default function SettingsPage() {
                     className="ml-3 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                   >
                     Download Logs
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                  <KeyIcon className="h-5 w-5 mr-2 text-blue-500" />
+                  Invite Code Management
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Manage invite codes for admin and teacher roles
+                </p>
+              </div>
+              <div className="px-4 py-5 sm:p-6 space-y-6">
+                <div>
+                  <label htmlFor="adminCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Admin Invite Code
+                  </label>
+                  <input
+                    type="text"
+                    name="adminCode"
+                    id="adminCode"
+                    value={inviteCodes.adminCode}
+                    onChange={(e) => setInviteCodes({ ...inviteCodes, adminCode: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="teacherCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Teacher Invite Code
+                  </label>
+                  <input
+                    type="text"
+                    name="teacherCode"
+                    id="teacherCode"
+                    value={inviteCodes.teacherCode}
+                    onChange={(e) => setInviteCodes({ ...inviteCodes, teacherCode: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleUpdateInviteCodes}
+                    disabled={updateInviteCodesLoading}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50"
+                  >
+                    {updateInviteCodesLoading ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                        Updating...
+                      </>
+                    ) : (
+                      'Update Invite Codes'
+                    )}
                   </button>
                 </div>
               </div>
