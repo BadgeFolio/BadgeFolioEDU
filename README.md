@@ -5,7 +5,9 @@ A platform for creating, earning, and managing digital badges in educational set
 ## Features
 
 - Google Sign-in and email/password authentication
-- Teacher and student roles
+- Role-based access control (Admin, Teacher, Student)
+- Secure invite code system for admin and teacher registration
+- Admin dashboard with system settings and user management
 - Badge creation and management
 - Badge submission and validation
 - Learning pathways
@@ -36,6 +38,8 @@ A platform for creating, earning, and managing digital badges in educational set
    GOOGLE_CLIENT_ID=your-google-client-id
    GOOGLE_CLIENT_SECRET=your-google-client-secret
    MONGODB_URI=your-mongodb-uri
+   ADMIN_INVITE_CODE=your-secure-admin-code
+   TEACHER_INVITE_CODE=your-secure-teacher-code
    ```
 
 4. Set up Google OAuth:
@@ -53,6 +57,46 @@ A platform for creating, earning, and managing digital badges in educational set
    ```
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Role-Based Access
+
+BadgeFolio implements a secure role-based access control system:
+
+### Student Role (Default)
+- Can earn badges
+- Submit work for badge completion
+- View personal progress
+- Access the community achievement wall
+
+### Teacher Role
+- Requires a valid teacher invite code during registration
+- Can create and manage badges
+- Review and validate student submissions
+- Access student portfolios
+- View system analytics
+
+### Admin Role
+- Requires a valid admin invite code during registration
+- Full access to system settings
+- User role management
+- Invite code management
+- System maintenance tools
+- Complete analytics dashboard
+
+## Invite Code Management
+
+Administrators can manage invite codes through the admin dashboard:
+
+1. Navigate to Admin Dashboard > System Settings
+2. Find the "Invite Code Management" section
+3. Update the invite codes for admin and teacher roles
+4. Changes are immediately effective for new registrations
+
+For security best practices:
+- Change invite codes periodically
+- Use strong, unique codes
+- Share codes securely with intended recipients
+- Monitor user registrations
 
 ## Project Structure
 
