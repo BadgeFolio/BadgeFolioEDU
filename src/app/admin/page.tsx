@@ -28,9 +28,9 @@ interface User {
 const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
 
 export default function AdminDashboard() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
 
@@ -40,10 +40,24 @@ export default function AdminDashboard() {
   const isStudent = (session?.user as any)?.role === 'student';
 
   useEffect(() => {
+    if (status === 'loading') return;
+
+    if (!session) {
+      router.push('/auth/signin');
+      return;
+    }
+
+    if (session.user.role !== 'admin' && session.user.role !== 'super_admin') {
+      router.push('/dashboard');
+      return;
+    }
+
     if (isSuperAdmin) {
       fetchUsers();
     }
-  }, [isSuperAdmin]);
+
+    setIsLoading(false);
+  }, [session, status, router, isSuperAdmin]);
 
   const fetchUsers = async () => {
     try {
@@ -58,7 +72,7 @@ export default function AdminDashboard() {
   };
 
   const updateRole = async (email: string, newRole: string) => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     
     try {
@@ -95,9 +109,17 @@ export default function AdminDashboard() {
       setError(error instanceof Error ? error.message : 'Failed to update role');
       toast.error(error instanceof Error ? error.message : 'Failed to update role');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
 
   if (!session?.user) {
     return (
@@ -153,34 +175,6 @@ export default function AdminDashboard() {
                   </h3>
                   <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     Manage user roles and permissions
-                  </p>
-                </div>
-                <span
-                  className="pointer-events-none absolute top-6 right-6 text-gray-300 dark:text-gray-600 group-hover:text-gray-400 dark:group-hover:text-gray-500"
-                  aria-hidden="true"
-                >
-                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20 4h1a1 1 0 00-1-1v1zm-1 12a1 1 0 102 0h-2zM8 3a1 1 0 000 2V3zM3.293 19.293a1 1 0 101.414 1.414l-1.414-1.414zM19 4v12h2V4h-2zm1-1H8v2h12V3zm-.707.293l-16 16 1.414 1.414 16-16-1.414-1.414z" />
-                  </svg>
-                </span>
-              </Link>
-
-              <Link
-                href="/admin/invitations"
-                className="relative group bg-white dark:bg-gray-800 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 rounded-lg overflow-hidden hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-              >
-                <div>
-                  <span className="rounded-lg inline-flex p-3 bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 ring-4 ring-white dark:ring-gray-800">
-                    <EnvelopeIcon className="h-6 w-6" aria-hidden="true" />
-                  </span>
-                </div>
-                <div className="mt-8">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    <span className="absolute inset-0" aria-hidden="true" />
-                    User Invitations
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Invite teachers and students via email
                   </p>
                 </div>
                 <span

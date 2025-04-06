@@ -16,7 +16,10 @@ import {
   BookOpenIcon,
   HomeIcon,
   AcademicCapIcon,
-  TrophyIcon
+  TrophyIcon,
+  UsersIcon,
+  TagIcon,
+  StarIcon
 } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -51,6 +54,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   const userRole = session?.user ? (session.user as any).role || 'student' : 'student';
   const isTeacher = userRole === 'teacher';
+  const isAdmin = userRole === 'admin';
 
   const copyShareLink = async () => {
     try {
@@ -257,27 +261,26 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             {(session.user as any).role === 'admin' && (
                               <>
                                 <Link
-                                  href="/admin/roles"
-                                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                  onClick={() => setIsProfileOpen(false)}
+                                  href="/admin/users"
+                                  className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                 >
-                                  Role Management
+                                  <UsersIcon className="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                                  User Management
                                 </Link>
                                 <Link
-                                  href="/admin/invitations"
-                                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                  onClick={() => setIsProfileOpen(false)}
+                                  href="/admin/badges"
+                                  className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                 >
-                                  User Invitations
+                                  <StarIcon className="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                                  Badge Management
                                 </Link>
                                 <Link
-                                  href="/admin/settings"
-                                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                  onClick={() => setIsProfileOpen(false)}
+                                  href="/admin/categories"
+                                  className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                 >
-                                  System Settings
+                                  <TagIcon className="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                                  Category Management
                                 </Link>
-                                <div className="border-t border-gray-100 dark:border-gray-700" />
                               </>
                             )}
                             <hr className="border-gray-200 dark:border-gray-600" />
