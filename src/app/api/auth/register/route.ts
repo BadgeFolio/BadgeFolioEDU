@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/mongoose';
-import { User } from '@/lib/models';
-import { prisma } from '@/lib/prisma';
+import { User, Invitation } from '@/lib/models';
 
 export async function POST(request: Request) {
   try {
@@ -17,15 +16,15 @@ export async function POST(request: Request) {
       );
     }
 
+    await dbConnect();
+
     // Check for token validity in the invitation system
     let invitation;
     try {
-      invitation = await prisma.invitation.findFirst({
-        where: {
-          token: token,
-          status: 'pending',
-          email: email
-        }
+      invitation = await Invitation.findOne({
+        token: token,
+        status: 'pending',
+        email: email
       });
 
       if (!invitation) {
@@ -45,25 +44,20 @@ export async function POST(request: Request) {
         );
       }
 
-      console.log('Valid invitation found:', { id: invitation.id, email: invitation.email, role: invitation.role });
-    } catch (prismaError) {
-      console.error('Error checking invitation token:', prismaError);
+      console.log('Valid invitation found:', { id: invitation._id, email: invitation.email, role: invitation.role });
+    } catch (error) {
+      console.error('Error checking invitation token:', error);
       return NextResponse.json(
         { error: 'Failed to validate invitation token' },
         { status: 500 }
       );
     }
 
-    await dbConnect();
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
 
-    // Check if user exists in either MongoDB or Prisma
-    const [mongoUser, prismaUser] = await Promise.all([
-      User.findOne({ email }),
-      prisma.user.findUnique({ where: { email } })
-    ]);
-
-    if (mongoUser && prismaUser) {
-      console.log('User already exists in both MongoDB and Prisma:', email);
+    if (existingUser) {
+      console.log('User already exists:', email);
       return NextResponse.json(
         { error: 'User already exists with this email' },
         { status: 400 }
@@ -73,100 +67,25 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    console.log('Creating or synchronizing user with role:', invitation.role);
+    console.log('Creating new user with role:', invitation.role);
 
     try {
-      let user;
-      
-      // If user exists in MongoDB but not in Prisma
-      if (mongoUser && !prismaUser) {
-        console.log('User exists in MongoDB but not in Prisma, synchronizing...');
-        try {
-          await prisma.user.create({
-            data: {
-              name: mongoUser.name,
-              email: mongoUser.email,
-              password: mongoUser.password,
-              role: mongoUser.role,
-              requirePasswordChange: mongoUser.requirePasswordChange
-            }
-          });
-          user = mongoUser;
-        } catch (prismaError) {
-          console.error('Error synchronizing user to Prisma:', prismaError);
-          // Continue with MongoDB user
-          user = mongoUser;
-        }
-      }
-      // If user exists in Prisma but not in MongoDB
-      else if (!mongoUser && prismaUser) {
-        console.log('User exists in Prisma but not in MongoDB, synchronizing...');
-        try {
-          user = await User.create({
-            name: prismaUser.name,
-            email: prismaUser.email,
-            password: prismaUser.password,
-            role: prismaUser.role,
-            requirePasswordChange: prismaUser.requirePasswordChange
-          });
-        } catch (mongoError) {
-          console.error('Error synchronizing user to MongoDB:', mongoError);
-          return NextResponse.json(
-            { error: 'Failed to synchronize user account' },
-            { status: 500 }
-          );
-        }
-      }
-      // If user doesn't exist in either system
-      else {
-        console.log('Creating new user in both systems');
-        try {
-          // Create user in MongoDB first
-          user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            role: invitation.role,
-            requirePasswordChange: true
-          });
-
-          // Then create in Prisma
-          await prisma.user.create({
-            data: {
-              name,
-              email,
-              password: hashedPassword,
-              role: invitation.role,
-              requirePasswordChange: true
-            }
-          });
-        } catch (error) {
-          console.error('Error creating user in both systems:', error);
-          // Try to clean up if one succeeded but the other failed
-          if (user) {
-            try {
-              await User.deleteOne({ _id: user._id });
-            } catch (cleanupError) {
-              console.error('Error cleaning up MongoDB user:', cleanupError);
-            }
-          }
-          return NextResponse.json(
-            { error: 'Failed to create user account consistently' },
-            { status: 500 }
-          );
-        }
-      }
+      // Create user in MongoDB
+      const user = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        role: invitation.role,
+        requirePasswordChange: true
+      });
 
       // Mark invitation as accepted
       try {
-        await prisma.invitation.update({
-          where: { id: invitation.id },
-          data: { status: 'accepted' }
-        });
+        await Invitation.findByIdAndUpdate(invitation._id, { status: 'accepted' });
         console.log('Invitation marked as accepted');
       } catch (updateError) {
         console.error('Error updating invitation status:', updateError);
-        // Continue anyway, since user is created/synchronized
+        // Continue anyway, since user is created
       }
 
       // Remove password from response
