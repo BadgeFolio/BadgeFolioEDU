@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 import dbConnect from '@/lib/mongoose';
-import { User } from '@/lib/models';
+import { User, Invitation } from '@/lib/models';
 import { randomBytes } from 'crypto';
 import sgMail from '@sendgrid/mail';
-import { Prisma, PrismaClient } from '@prisma/client';
-import { MongoClient } from 'mongodb';
 
 // Set SendGrid API key from environment variable
 if (process.env.SENDGRID_API_KEY) {
@@ -52,16 +49,13 @@ export async function GET(req: NextRequest) {
     // Retrieve all invitations
     console.log('Fetching invitations from database');
     
+    await dbConnect();
     let invitations = [];
     
     try {
       // Fetch invitations
-      invitations = await prisma.invitation.findMany({
-        orderBy: [
-          { status: 'asc' },
-          { createdAt: 'desc' },
-        ],
-      });
+      invitations = await Invitation.find({})
+        .sort({ status: 1, createdAt: -1 });
       
       console.log(`Found ${invitations.length} invitations`);
     } catch (dbError) {
@@ -166,22 +160,10 @@ export async function POST(req: NextRequest) {
     
     // Check if user already exists
     await dbConnect();
-    const existingUserInMongo = await User.findOne({ email: normalizedEmail });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     
-    if (existingUserInMongo) {
-      console.log('User already exists in MongoDB:', normalizedEmail);
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
-      );
-    }
-    
-    const existingUserInPrisma = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-    
-    if (existingUserInPrisma) {
-      console.log('User already exists in Prisma:', normalizedEmail);
+    if (existingUser) {
+      console.log('User already exists:', normalizedEmail);
       return NextResponse.json(
         { error: 'User with this email already exists' },
         { status: 400 }
@@ -189,11 +171,9 @@ export async function POST(req: NextRequest) {
     }
     
     // Check if invitation already exists
-    const existingInvitation = await prisma.invitation.findFirst({
-      where: { 
-        email: normalizedEmail,
-        status: 'pending'
-      },
+    const existingInvitation = await Invitation.findOne({ 
+      email: normalizedEmail,
+      status: 'pending'
     });
     
     if (existingInvitation) {
@@ -220,167 +200,59 @@ export async function POST(req: NextRequest) {
     });
 
     try {
-      // Direct approach with imported PrismaClient for fresh instance
-      let invitation;
+      // Create invitation record
+      const invitation = await Invitation.create({
+        email: normalizedEmail,
+        role,
+        token,
+        defaultPassword,
+        status: 'pending',
+        expiresAt,
+        invitedBy: userEmail,
+      });
+      
+      console.log('Invitation created successfully with ID:', invitation._id);
+      
+      // Send invitation email
+      const inviteUrl = `${process.env.NEXTAUTH_URL}/signup?token=${token}`;
+      
+      const msg = {
+        to: normalizedEmail,
+        from: 'noreply@badgefolio.com',
+        subject: 'Invitation to Join BadgeFolio',
+        text: `You have been invited to join BadgeFolio as a ${role}. Click the following link to complete your registration: ${inviteUrl}`,
+        html: `
+          <h1>Welcome to BadgeFolio!</h1>
+          <p>You have been invited to join BadgeFolio as a ${role}.</p>
+          <p>Click the button below to complete your registration:</p>
+          <a href="${inviteUrl}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Complete Registration</a>
+          <p>This invitation will expire in 48 hours.</p>
+        `,
+      };
       
       try {
-        // Create a fresh client to avoid any cached schema issues
-        const prismaTemp = new PrismaClient();
-        
-        console.log('Creating invitation with direct PrismaClient');
-        
-        // Create invitation record
-        invitation = await prismaTemp.invitation.create({
-          data: {
-            email: normalizedEmail,
-            role,
-            token,
-            defaultPassword,
-            status: 'pending',
-            expiresAt,
-            invitedBy: userEmail,
-          } as any  // Force TypeScript to accept this
-        });
-        
-        // Disconnect when done
-        await prismaTemp.$disconnect();
-        
-        console.log('Invitation created successfully with ID:', invitation.id);
-      } catch (createError) {
-        console.error('Error during invitation creation with fresh client:', createError);
-        
-        // Fallback to direct database access as last resort
-        console.log('Trying fallback method...');
-        
-        try {
-          // Get connection string from env
-          const uri = process.env.DATABASE_URL || '';
-          if (!uri) {
-            throw new Error('DATABASE_URL environment variable not set');
-          }
-          const client = new MongoClient(uri);
-          
-          await client.connect();
-          const database = client.db(); // Use default DB from connection string
-          const collection = database.collection('Invitation');
-          
-          // Insert directly using MongoDB driver
-          const result = await collection.insertOne({
-            email: normalizedEmail,
-            role,
-            token,
-            defaultPassword,
-            status: 'pending',
-            expiresAt,
-            invitedBy: userEmail,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          });
-          
-          invitation = {
-            id: result.insertedId.toString(),
-            email: normalizedEmail,
-            role,
-            status: 'pending',
-            expiresAt
-          };
-          
-          await client.close();
-          console.log('Invitation created with fallback method, ID:', invitation.id);
-        } catch (fallbackError) {
-          console.error('Fallback method also failed:', fallbackError);
-          throw new Error('All invitation creation methods failed');
-        }
+        await sgMail.send(msg);
+        console.log('Invitation email sent successfully');
+      } catch (emailError) {
+        console.error('Error sending invitation email:', emailError);
+        // Don't fail the request if email fails
       }
       
-      // Generate sign-up link
-      const signupUrl = `${process.env.NEXTAUTH_URL}/register?token=${token}&email=${encodeURIComponent(normalizedEmail)}`;
-      
-      // Add note about password reset requirement in the email
-      const passwordNote = "You will be required to change your password when you first login.";
-    
-      // Send invitation email if SendGrid is configured
-      if (process.env.SENDGRID_API_KEY) {
-        try {
-          const msg = {
-            to: normalizedEmail,
-            from: process.env.EMAIL_FROM || 'noreply@yourdomain.com',
-            subject: 'Invitation to join the Badge System',
-            text: `You have been invited to join the Badge System as a ${role}. Click the link below to create your account:\n\n${signupUrl}\n\n${passwordNote}\n\nThis invitation will expire in 48 hours.`,
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2>You're invited to join the Badge System!</h2>
-                <p>You have been invited to join the Badge System as a <strong>${role}</strong>.</p>
-                <p>Click the button below to create your account:</p>
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="${signupUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                    Accept Invitation
-                  </a>
-                </div>
-                <p>Or copy and paste this URL into your browser:</p>
-                <p style="word-break: break-all; color: #666;">${signupUrl}</p>
-                <p style="color: #d97706; font-weight: bold;">${passwordNote}</p>
-                <p style="margin-top: 30px; font-size: 14px; color: #999;">This invitation will expire in 48 hours.</p>
-              </div>
-            `,
-          };
-          
-          await sgMail.send(msg);
-        } catch (emailError) {
-          console.error('Error sending invitation email:', emailError);
-          // We continue even if email fails, but log the error
-        }
-      } else {
-        console.warn('SendGrid API key not configured. Skipping email notification.');
-      }
-      
+      return NextResponse.json(invitation);
+    } catch (createError) {
+      console.error('Error creating invitation:', createError);
       return NextResponse.json(
         { 
-          message: 'Invitation created successfully',
-          invitation: {
-            id: invitation.id,
-            email: normalizedEmail,
-            role: role,
-            status: 'pending',
-            expiresAt: expiresAt
-          },
-          signupUrl
-        },
-        { status: 201 }
-      );
-    } catch (error: any) {
-      console.error('Error creating invitation:', error);
-      
-      // Try to provide more specific error information
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        console.error('Prisma error code:', error.code);
-        console.error('Prisma error message:', error.message);
-        
-        // Handle specific Prisma errors
-        if (error.code === 'P2002') {
-          return NextResponse.json(
-            { error: 'An invitation with this token already exists', details: error.message },
-            { status: 400 }
-          );
-        }
-      }
-      
-      return NextResponse.json(
-        { 
-          error: 'Failed to create invitation', 
-          details: error instanceof Error ? error.message : String(error),
-          errorType: error.constructor ? error.constructor.name : typeof error
+          error: 'Failed to create invitation',
+          details: createError instanceof Error ? createError.message : String(createError)
         },
         { status: 500 }
       );
     }
-  } catch (error: any) {
-    console.error('Error in main invitation flow:', error);
+  } catch (error) {
+    console.error('Error processing invitation request:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to process invitation request',
-        details: error instanceof Error ? error.message : String(error)
-      },
+      { error: 'Failed to process invitation request', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
