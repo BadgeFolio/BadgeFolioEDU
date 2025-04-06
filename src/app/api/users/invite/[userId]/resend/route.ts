@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import sgMail from '@sendgrid/mail';
-
-// Set SendGrid API key from environment variable
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-}
+import dbConnect from '@/lib/mongoose';
+import { Invitation } from '@/lib/models';
 
 // Super admin email constant
 const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
@@ -44,10 +39,10 @@ export async function POST(
     // Get invitation ID from URL parameters
     const { userId } = params;
     
+    await dbConnect();
+    
     // Find the invitation
-    const invitation = await prisma.invitation.findUnique({
-      where: { id: userId },
-    });
+    const invitation = await Invitation.findById(userId);
     
     if (!invitation) {
       return NextResponse.json(
@@ -77,55 +72,19 @@ export async function POST(
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 48);
     
-    const updatedInvitation = await prisma.invitation.update({
-      where: { id: userId },
-      data: {
+    const updatedInvitation = await Invitation.findByIdAndUpdate(
+      userId,
+      {
         status: 'pending',
         expiresAt,
       },
-    });
-    
-    // Generate sign-up link
-    const signupUrl = `${process.env.NEXTAUTH_URL}/register?token=${invitation.token}`;
-    
-    // Send invitation email if SendGrid is configured
-    if (process.env.SENDGRID_API_KEY) {
-      try {
-        const msg = {
-          to: invitation.email,
-          from: process.env.EMAIL_FROM || 'noreply@yourdomain.com',
-          subject: 'Invitation to join the Badge System (Reminder)',
-          text: `You have been invited to join the Badge System as a ${invitation.role}. Click the link below to create your account:\n\n${signupUrl}\n\nThis invitation will expire in 48 hours.`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2>You're invited to join the Badge System!</h2>
-              <p>This is a reminder that you have been invited to join the Badge System as a <strong>${invitation.role}</strong>.</p>
-              <p>Click the button below to create your account:</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${signupUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                  Accept Invitation
-                </a>
-              </div>
-              <p>Or copy and paste this URL into your browser:</p>
-              <p style="word-break: break-all; color: #666;">${signupUrl}</p>
-              <p style="margin-top: 30px; font-size: 14px; color: #999;">This invitation will expire in 48 hours.</p>
-            </div>
-          `,
-        };
-        
-        await sgMail.send(msg);
-      } catch (emailError) {
-        console.error('Error sending invitation email:', emailError);
-        // We continue even if email fails, but log the error
-      }
-    } else {
-      console.warn('SendGrid API key not configured. Skipping email notification.');
-    }
+      { new: true }
+    );
     
     return NextResponse.json({ 
       message: 'Invitation resent successfully',
       invitation: {
-        id: updatedInvitation.id,
+        id: updatedInvitation._id,
         email: updatedInvitation.email,
         role: updatedInvitation.role,
         status: updatedInvitation.status,

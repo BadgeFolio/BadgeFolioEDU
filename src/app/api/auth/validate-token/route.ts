@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import dbConnect from '@/lib/mongoose';
+import { Invitation } from '@/lib/models';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const token = url.searchParams.get('token');
   const email = url.searchParams.get('email');
 
+  await dbConnect();
+
   // If we only have email, we're checking if there's a pending invitation for this email
   if (!token && email) {
     try {
       console.log('Checking for pending invitation for email:', email);
-      const invitation = await prisma.invitation.findFirst({
-        where: {
-          email: email,
-          status: 'pending',
-        },
+      const invitation = await Invitation.findOne({
+        email: email,
+        status: 'pending',
       });
 
       if (!invitation) {
@@ -59,12 +60,10 @@ export async function GET(request: Request) {
 
   try {
     console.log('Validating token:', token);
-    const invitation = await prisma.invitation.findFirst({
-      where: {
-        token: token,
-        status: 'pending',
-        ...(email ? { email } : {})
-      },
+    const invitation = await Invitation.findOne({
+      token: token,
+      status: 'pending',
+      ...(email ? { email } : {})
     });
 
     if (!invitation) {

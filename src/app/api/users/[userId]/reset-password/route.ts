@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import dbConnect from '@/lib/mongoose';
+import { User } from '@/lib/models';
 import bcrypt from 'bcryptjs';
 
 // Super admin email constant
@@ -56,10 +57,10 @@ export async function POST(
     
     const { newPassword } = body;
     
+    await dbConnect();
+    
     // Find the user
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await User.findById(userId);
     
     if (!user) {
       return NextResponse.json(
@@ -98,12 +99,9 @@ export async function POST(
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     
     // Update user with new password and require password change flag
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        password: hashedPassword,
-        requirePasswordChange: true
-      }
+    await User.findByIdAndUpdate(userId, {
+      password: hashedPassword,
+      requirePasswordChange: true
     });
     
     return NextResponse.json({

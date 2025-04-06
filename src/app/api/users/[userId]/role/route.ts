@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import dbConnect from '@/lib/mongoose';
+import { User } from '@/lib/models';
 
 // Super admin email constant
 const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
@@ -58,10 +59,10 @@ export async function PUT(
       );
     }
     
+    await dbConnect();
+    
     // Find the user
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await User.findById(userId);
     
     if (!user) {
       return NextResponse.json(
@@ -89,17 +90,11 @@ export async function PUT(
     }
     
     // Update the user's role
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { role },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        image: true,
-      },
-    });
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true, select: 'id name email role image' }
+    );
     
     return NextResponse.json({
       message: 'User role updated successfully',
