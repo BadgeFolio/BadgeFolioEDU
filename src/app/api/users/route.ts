@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import dbConnect from '@/lib/mongoose';
+import { User } from '@/lib/models';
+import bcrypt from 'bcryptjs';
 
 // Super admin email constant
 const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
@@ -36,28 +38,17 @@ export async function GET(req: NextRequest) {
     const role = searchParams.get('role');
     
     // Define filter conditions
-    const whereClause: any = {};
+    const filter: any = {};
     if (role) {
-      whereClause.role = role;
+      filter.role = role;
     }
     
+    await dbConnect();
+    
     // Retrieve all users based on filters
-    const users = await prisma.user.findMany({
-      where: whereClause,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        image: true,
-        createdAt: true,
-        requirePasswordChange: true,
-      },
-      orderBy: [
-        { role: 'asc' },
-        { name: 'asc' },
-      ],
-    });
+    const users = await User.find(filter)
+      .select('id name email role image createdAt requirePasswordChange')
+      .sort({ role: 1, name: 1 });
     
     return NextResponse.json(users);
   } catch (error) {
@@ -132,10 +123,10 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    await dbConnect();
+    
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    const existingUser = await User.findOne({ email });
     
     if (existingUser) {
       return NextResponse.json(
@@ -144,29 +135,32 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    // Hash password if provided
+    let hashedPassword;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+    
     // Create new user
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        role,
-        password, // This should be hashed before storing
-        requirePasswordChange: true, // Require password change on first login
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        image: true,
-        createdAt: true,
-      },
+    const newUser = await User.create({
+      name,
+      email,
+      role,
+      password: hashedPassword,
+      requirePasswordChange: true, // Require password change on first login
     });
     
     return NextResponse.json(
       { 
         message: 'User created successfully',
-        user: newUser
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+          image: newUser.image,
+          createdAt: newUser.createdAt,
+        }
       },
       { status: 201 }
     );

@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import sgMail from '@sendgrid/mail';
-
-// Set SendGrid API key from environment variable
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-}
+import dbConnect from '@/lib/mongoose';
+import { Invitation } from '@/lib/models';
 
 // Super admin email constant
 const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
@@ -44,10 +39,10 @@ export async function DELETE(
     // Get invitation ID from URL parameters
     const { userId } = params;
     
+    await dbConnect();
+    
     // Find the invitation
-    const invitation = await prisma.invitation.findUnique({
-      where: { id: userId },
-    });
+    const invitation = await Invitation.findById(userId);
     
     if (!invitation) {
       return NextResponse.json(
@@ -66,9 +61,7 @@ export async function DELETE(
     }
     
     // Delete the invitation
-    await prisma.invitation.delete({
-      where: { id: userId },
-    });
+    await Invitation.findByIdAndDelete(userId);
     
     return NextResponse.json({ message: 'Invitation deleted successfully' });
   } catch (error) {

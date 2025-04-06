@@ -22,5 +22,29 @@ const InvitationSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-export const User = mongoose.models.User || mongoose.model('User', UserSchema);
-export const Invitation = mongoose.models.Invitation || mongoose.model('Invitation', InvitationSchema); 
+// Define interfaces for the models
+interface IUser extends mongoose.Document {
+  name: string;
+  email: string;
+  password: string;
+  role: 'super_admin' | 'admin' | 'teacher' | 'student';
+  requirePasswordChange: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface IInvitation extends mongoose.Document {
+  email: string;
+  role: 'super_admin' | 'admin' | 'teacher' | 'student';
+  token: string;
+  defaultPassword?: string;
+  status: 'pending' | 'accepted' | 'expired';
+  expiresAt: Date;
+  invitedBy: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Create and export the models with proper typing
+export const User = (mongoose.models.User || mongoose.model<IUser>('User', UserSchema)) as mongoose.Model<IUser>;
+export const Invitation = (mongoose.models.Invitation || mongoose.model<IInvitation>('Invitation', InvitationSchema)) as mongoose.Model<IInvitation>; 
