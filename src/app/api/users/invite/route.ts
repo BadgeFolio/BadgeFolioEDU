@@ -4,12 +4,6 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { User, Invitation } from '@/lib/models';
 import { randomBytes } from 'crypto';
-import sgMail from '@sendgrid/mail';
-
-// Set SendGrid API key from environment variable
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-}
 
 // Super admin email constant
 const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
@@ -81,7 +75,7 @@ export async function GET(req: NextRequest) {
 
 /**
  * POST /api/users/invite
- * Creates a new user invitation and sends email
+ * Creates a new user invitation
  */
 export async function POST(req: NextRequest) {
   console.log('POST /api/users/invite - Request received');
@@ -212,31 +206,6 @@ export async function POST(req: NextRequest) {
       });
       
       console.log('Invitation created successfully with ID:', invitation._id);
-      
-      // Send invitation email
-      const inviteUrl = `${process.env.NEXTAUTH_URL}/signup?token=${token}`;
-      
-      const msg = {
-        to: normalizedEmail,
-        from: 'noreply@badgefolio.com',
-        subject: 'Invitation to Join BadgeFolio',
-        text: `You have been invited to join BadgeFolio as a ${role}. Click the following link to complete your registration: ${inviteUrl}`,
-        html: `
-          <h1>Welcome to BadgeFolio!</h1>
-          <p>You have been invited to join BadgeFolio as a ${role}.</p>
-          <p>Click the button below to complete your registration:</p>
-          <a href="${inviteUrl}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Complete Registration</a>
-          <p>This invitation will expire in 48 hours.</p>
-        `,
-      };
-      
-      try {
-        await sgMail.send(msg);
-        console.log('Invitation email sent successfully');
-      } catch (emailError) {
-        console.error('Error sending invitation email:', emailError);
-        // Don't fail the request if email fails
-      }
       
       return NextResponse.json(invitation);
     } catch (createError) {
