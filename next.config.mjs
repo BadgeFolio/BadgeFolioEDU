@@ -8,9 +8,7 @@ const nextConfig = {
   // Add MongoDB configuration
   experimental: {
     serverComponentsExternalPackages: ['mongoose']
-  },
-  // Static export configuration
-  output: 'export'
+  }
 };
 
 export default nextConfig; 

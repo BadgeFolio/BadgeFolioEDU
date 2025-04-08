@@ -8,6 +8,10 @@ import bcrypt from 'bcryptjs';
 import { DefaultSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+// Add dynamic configuration
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 // Extend the built-in types
 declare module 'next-auth' {
   interface User {
