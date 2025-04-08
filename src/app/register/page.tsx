@@ -15,6 +15,7 @@ const schema = z.object({
   role: z.enum(['student', 'teacher', 'admin']).default('student'),
 });
 
+// Infer the FormData type directly from the Zod schema
 type FormData = z.infer<typeof schema>;
 
 export default function RegisterPage() {
@@ -27,6 +28,12 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      role: 'student',
+    },
   });
 
   const onSubmit = async (data: FormData) => {
