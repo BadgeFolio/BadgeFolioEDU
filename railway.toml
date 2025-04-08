@@ -1,8 +1,12 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm run build"
+buildCommand = "npm install && npm run build"
+nodeVersion = "20"
 
 [deploy]
 startCommand = "npm start"
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10 
+restartPolicyMaxRetries = 10
+
+[phases.setup]
+nixPkgs = ["nodejs-20_x"] 
