@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import MainLayout from '@/components/layout/MainLayout';
 import toast from 'react-hot-toast';
 import { PopulatedBadge, Submission } from '@/types';
-import { ShareIcon, AdjustmentsHorizontalIcon, SwatchIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { ShareIcon, AdjustmentsHorizontalIcon, SwatchIcon, EyeIcon, EyeSlashIcon, LinkIcon } from '@heroicons/react/24/outline';
 
 interface Badge {
   _id: string;
@@ -110,12 +110,18 @@ export default function Portfolio() {
     }
   };
 
-  const copyShareLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast.success('Portfolio link copied to clipboard!');
-    } catch (error) {
-      toast.error('Failed to copy link');
+  const handleSharePortfolio = () => {
+    if (session?.user) {
+      const portfolioUrl = `${window.location.origin}/portfolio/${session.user._id}`;
+      navigator.clipboard.writeText(portfolioUrl)
+        .then(() => {
+          toast.success('Portfolio link copied to clipboard!');
+          console.log('Copied portfolio URL:', portfolioUrl);
+        })
+        .catch(err => {
+          console.error('Failed to copy portfolio link:', err);
+          toast.error('Failed to copy portfolio link');
+        });
     }
   };
 
@@ -265,10 +271,10 @@ export default function Portfolio() {
             </div>
             <div className="mt-4 sm:mt-0">
               <button
-                onClick={copyShareLink}
+                onClick={handleSharePortfolio}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                <ShareIcon className="mr-2 h-4 w-4" />
+                <LinkIcon className="mr-2 h-4 w-4" />
                 Share Portfolio
               </button>
             </div>

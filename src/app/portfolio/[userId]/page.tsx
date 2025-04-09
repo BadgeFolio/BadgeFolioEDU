@@ -40,8 +40,18 @@ export default function PublicPortfolio({ params }: { params: { userId: string }
           fetch('/api/badges')
         ]);
 
-        if (!userResponse.ok || !submissionsResponse.ok || !badgesResponse.ok) {
-          throw new Error('Failed to fetch portfolio data');
+        if (!userResponse.ok) {
+          console.error('User not found:', await userResponse.text());
+          setError('User not found');
+          setLoading(false);
+          return;
+        }
+
+        if (!submissionsResponse.ok || !badgesResponse.ok) {
+          console.error('Failed to fetch portfolio data');
+          setError('Failed to load portfolio data');
+          setLoading(false);
+          return;
         }
 
         const userData = await userResponse.json();
@@ -68,14 +78,13 @@ export default function PublicPortfolio({ params }: { params: { userId: string }
       } catch (error) {
         console.error('Error fetching portfolio data:', error);
         setError('Failed to load portfolio');
-        router.push('/404');
       } finally {
         setLoading(false);
       }
     };
 
     fetchPortfolioData();
-  }, [params.userId, router]);
+  }, [params.userId]);
 
   const filteredAndSortedBadges = earnedBadges
     .filter(({ badge }) => {
