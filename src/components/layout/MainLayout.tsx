@@ -153,7 +153,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     My Portfolio
                   </Link>
                 )}
-                {isTeacher && (
+                {(isTeacher || isAdmin) && (
                   <>
                     <Link
                       href="/badges/create"
@@ -283,6 +283,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                 </Link>
                               </>
                             )}
+                            {(session.user as any).role === 'teacher' && (
+                              <Link
+                                href="/admin/categories"
+                                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                              >
+                                <TagIcon className="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                                Manage Categories
+                              </Link>
+                            )}
                             <hr className="border-gray-200 dark:border-gray-600" />
                           </>
                         )}
@@ -337,7 +346,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   My Portfolio
                 </Link>
               )}
-              {isTeacher && (
+              {(isTeacher || isAdmin) && (
                 <>
                   <Link
                     href="/badges/create"
