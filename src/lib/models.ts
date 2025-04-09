@@ -141,7 +141,18 @@ const badgeSchema = new mongoose.Schema({
   reactions: [{
     type: { type: String, enum: ['👏', '🎉', '🌟', '🏆', '💪'], required: true },
     users: [{ type: String }]
-  }]
+  }],
+  approvalStatus: { 
+    type: String, 
+    enum: ['pending', 'approved', 'rejected'], 
+    default: 'pending' 
+  },
+  approvedBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User' 
+  },
+  approvalDate: Date,
+  approvalComment: String
 }, { timestamps: true });
 
 // Add pre-save hook to validate category against database

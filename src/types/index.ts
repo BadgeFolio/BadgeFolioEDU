@@ -40,13 +40,22 @@ export interface Badge {
   isPublic: boolean;
   parentBadgeId?: string;
   pathwayId?: string;
+  approvalStatus?: 'pending' | 'approved' | 'rejected';
+  approvedBy?: string;
+  approvalDate?: Date;
+  approvalComment?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface PopulatedBadge extends Omit<Badge, 'category' | 'creatorId'> {
+export interface PopulatedBadge extends Omit<Badge, 'category' | 'creatorId' | 'approvedBy'> {
   category: SimplifiedCategory;
   creatorId: {
+    _id: string;
+    name?: string;
+    email: string;
+  };
+  approvedBy?: {
     _id: string;
     name?: string;
     email: string;

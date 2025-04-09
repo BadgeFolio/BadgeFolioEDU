@@ -210,6 +210,8 @@ export async function GET(request: Request) {
     const creatorId = searchParams.get('creatorId');
     const isPublic = searchParams.get('isPublic');
     const recent = searchParams.get('recent');
+    const approvalStatus = searchParams.get('approvalStatus');
+    const createdByMe = searchParams.get('createdByMe');
 
     // Build the query
     const query: any = {};
@@ -235,31 +237,40 @@ export async function GET(request: Request) {
         
         const userIsSuperAdmin = isSuperAdmin(user?.email);
         
+        // If createdByMe is true, only show badges created by the current user
+        if (createdByMe === 'true') {
+          query.creatorId = user._id;
+        }
+        // If not super admin and creatorId is specified, apply the filter
+        else if (!userIsSuperAdmin && creatorId) {
+          query.creatorId = creatorId;
+        }
         // If not super admin and isPublic is specified, apply the filter
-        if (!userIsSuperAdmin && isPublic !== null) {
+        else if (!userIsSuperAdmin && isPublic !== null) {
           query.isPublic = isPublic === 'true';
         }
         
-        // If not super admin and creatorId is specified, apply the filter
-        if (!userIsSuperAdmin && creatorId) {
-          query.creatorId = creatorId;
-        }
-        
         // If not super admin and not a specific query, show public badges and own badges
-        if (!userIsSuperAdmin && !creatorId && isPublic === null) {
+        if (!userIsSuperAdmin && !creatorId && isPublic === null && createdByMe !== 'true') {
           query.$or = [
             { isPublic: true },
             { creatorId: user?._id }
           ];
         }
+
+        // For teachers and admins, allow filtering by approval status
+        if ((user.role === 'teacher' || user.role === 'admin') && approvalStatus) {
+          query.approvalStatus = approvalStatus;
+        }
       }
     }
-
+    
     // Sort by createdAt if getting recent badges, otherwise default sort
     const sortOption = recent === 'true' ? { createdAt: -1 as SortOrder } : undefined;
 
     const badges = await Badge.find(query)
       .populate('creatorId', 'email name')
+      .populate('approvedBy', 'email name')
       .sort(sortOption)
       .limit(recent === 'true' ? 10 : 100) // Limit to 10 most recent badges
       .lean();
@@ -282,6 +293,11 @@ export async function GET(request: Request) {
           ...badge.creatorId,
           id: badge.creatorId._id.toString(),
           _id: badge.creatorId._id.toString()
+        } : undefined,
+        approvedBy: badge.approvedBy ? {
+          ...badge.approvedBy,
+          id: badge.approvedBy._id.toString(),
+          _id: badge.approvedBy._id.toString()
         } : undefined
       };
     });
