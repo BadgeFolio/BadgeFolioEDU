@@ -35,6 +35,7 @@ jobs:
       CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
       CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
       CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      ENV_CHECK_TOKEN: ${{ secrets.ENV_CHECK_TOKEN }}
       NODE_ENV: production
     steps:
       - name: Checkout
@@ -59,7 +60,8 @@ jobs:
           echo "CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME" >> .env.local
           echo "CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY" >> .env.local
           echo "CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET" >> .env.local
-          
+          echo "ENV_CHECK_TOKEN=$ENV_CHECK_TOKEN" >> .env.local
+      
       - name: Verify .env.local
         run: |
           ls -la .env.local
@@ -85,6 +87,7 @@ jobs:
           export CLOUDINARY_CLOUD_NAME="$CLOUDINARY_CLOUD_NAME"
           export CLOUDINARY_API_KEY="$CLOUDINARY_API_KEY"
           export CLOUDINARY_API_SECRET="$CLOUDINARY_API_SECRET"
+          export ENV_CHECK_TOKEN="$ENV_CHECK_TOKEN"
           export NEXT_PHASE="phase-production-build"
           npm run build
       
@@ -96,3 +99,14 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
           vercel-args: '--prod'
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          ADMIN_INVITE_CODE: ${{ secrets.ADMIN_INVITE_CODE }}
+          TEACHER_INVITE_CODE: ${{ secrets.TEACHER_INVITE_CODE }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          ENV_CHECK_TOKEN: ${{ secrets.ENV_CHECK_TOKEN }}
