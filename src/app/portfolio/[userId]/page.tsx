@@ -4,12 +4,36 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import MainLayout from '@/components/layout/MainLayout';
 import toast from 'react-hot-toast';
-import { PopulatedBadge, Submission, User } from '@/types';
+import { PopulatedBadge, User } from '@/types';
 import { AdjustmentsHorizontalIcon, SwatchIcon } from '@heroicons/react/24/outline';
+
+// Rename to avoid conflict with imported type
+interface SubmissionData {
+  _id: string;
+  badgeId: string | {
+    _id: string;
+    name?: string;
+    description?: string;
+    image?: string;
+  };
+  studentId: any;
+  teacherId: any;
+  status: string;
+  evidence: string;
+  isVisible?: boolean;
+  showEvidence?: boolean;
+  comments?: Array<{
+    content: string;
+    userId: string;
+    createdAt: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface EarnedBadge {
   badge: PopulatedBadge;
-  submission: Submission;
+  submission: SubmissionData;
   earnedDate: string;
   isVisible: boolean;
   showEvidence: boolean;
@@ -61,14 +85,36 @@ export default function PublicPortfolio({ params }: { params: { userId: string }
         setUser(userData);
 
         const earnedBadgesData = submissions
-          .map((sub: Submission) => ({
-            badge: badges.find((b: PopulatedBadge) => b._id === sub.badgeId._id),
-            submission: sub,
-            earnedDate: new Date(sub.updatedAt).toLocaleDateString(),
-            isVisible: sub.isVisible ?? true,
-            showEvidence: sub.showEvidence ?? true
-          }))
-          .filter((item: EarnedBadge) => item.badge && item.isVisible); // Only include visible badges
+          .map((sub: SubmissionData) => {
+            // Handle different possible formats of badgeId (string ID or object with _id)
+            const badgeId = typeof sub.badgeId === 'string' 
+              ? sub.badgeId 
+              : sub.badgeId?._id;
+            
+            if (!badgeId) {
+              console.warn('Submission has invalid badgeId:', sub);
+              return null;
+            }
+            
+            // Find the badge by ID
+            const badge = badges.find((b: PopulatedBadge) => 
+              b && b._id === badgeId
+            );
+            
+            if (!badge) {
+              console.warn(`Badge not found for ID: ${badgeId}`);
+              return null;
+            }
+            
+            return {
+              badge,
+              submission: sub,
+              earnedDate: new Date(sub.updatedAt).toLocaleDateString(),
+              isVisible: sub.isVisible ?? true,
+              showEvidence: sub.showEvidence ?? true
+            };
+          })
+          .filter((item: EarnedBadge | null) => item !== null && item.badge && item.isVisible); // Only include valid badges that are visible
 
         setEarnedBadges(earnedBadgesData);
 
