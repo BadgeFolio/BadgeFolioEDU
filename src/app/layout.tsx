@@ -8,8 +8,19 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Portfolio Badge System',
+  title: 'BadgeFolio',
   description: 'A system for managing and awarding portfolio badges',
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+      }
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

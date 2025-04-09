@@ -1,0 +1,16 @@
+{
+  "name": "BadgeFolio",
+  "short_name": "BadgeFolio",
+  "description": "A system for managing and awarding portfolio badges",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#75AACC",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+} 
