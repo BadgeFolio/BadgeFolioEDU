@@ -13,6 +13,7 @@ import {
   InformationCircleIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline';
+import { isSuperAdmin } from '@/lib/email';
 
 // Mock system settings data - in a real application, this would be fetched from an API
 const mockSystemInfo = {
@@ -27,8 +28,6 @@ const mockSystemInfo = {
   nextMaintenance: new Date(Date.now() + 7 * 86400000).toLocaleString(), // 7 days from now
 };
 
-const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
-
 export default function SettingsPage() {
   const { data: session } = useSession();
   const [clearCacheLoading, setClearCacheLoading] = useState(false);
@@ -39,7 +38,7 @@ export default function SettingsPage() {
   });
   const [updateInviteCodesLoading, setUpdateInviteCodesLoading] = useState(false);
   
-  const isSuperAdmin = session?.user?.email === SUPER_ADMIN_EMAIL;
+  const userIsSuperAdmin = isSuperAdmin(session?.user?.email);
   const isAdmin = (session?.user as any)?.role === 'admin';
   
   useEffect(() => {
@@ -128,7 +127,7 @@ export default function SettingsPage() {
     );
   }
   
-  const canAccessPage = isAdmin || isSuperAdmin;
+  const canAccessPage = isAdmin || userIsSuperAdmin;
   
   if (!canAccessPage) {
     return (

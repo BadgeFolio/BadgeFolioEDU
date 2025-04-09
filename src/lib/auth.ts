@@ -59,9 +59,11 @@ export const authOptions: NextAuthOptions = {
 
         try {
           await dbConnect();
-          console.log('Looking for user with email:', credentials.email);
+          // Convert email to lowercase for case-insensitive lookup
+          const normalizedEmail = credentials.email.toLowerCase();
+          console.log('Looking for user with email:', normalizedEmail);
           
-          const user = await User.findOne({ email: credentials.email });
+          const user = await User.findOne({ email: normalizedEmail });
           
           if (!user) {
             throw new Error('No user found with this email');

@@ -98,7 +98,13 @@ export function createMockModel(modelName: string): any {
 // User Schema
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    set: (v: string) => v.toLowerCase(), // Convert to lowercase when setting
+    get: (v: string) => v  // Return as is when getting
+  },
   password: String, // Optional for OAuth users
   image: String,
   role: { type: String, enum: ['student', 'teacher', 'admin'], default: 'student' },
@@ -110,6 +116,14 @@ const userSchema = new mongoose.Schema({
   // Add this to ensure virtual fields are included in the response
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
+});
+
+// Add pre-save hook to ensure email is lowercase
+userSchema.pre('save', function(next) {
+  if (this.email) {
+    this.email = this.email.toLowerCase();
+  }
+  next();
 });
 
 // Badge Schema

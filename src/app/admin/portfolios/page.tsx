@@ -7,6 +7,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import toast from 'react-hot-toast';
 import { User } from '@/types';
 import { Tab } from '@headlessui/react';
+import { isSuperAdmin } from '@/lib/email';
 
 export default function Portfolios() {
   const { data: session } = useSession();
@@ -17,7 +18,7 @@ export default function Portfolios() {
   const [selectedRole, setSelectedRole] = useState<'student' | 'teacher'>('student');
 
   const isAdmin = (session?.user as any)?.role === 'admin';
-  const isSuperAdmin = session?.user?.email === 'emailmrdavola@gmail.com';
+  const userIsSuperAdmin = isSuperAdmin(session?.user?.email);
   const isTeacher = (session?.user as any)?.role === 'teacher';
 
   useEffect(() => {
@@ -26,13 +27,13 @@ export default function Portfolios() {
       return;
     }
 
-    if (!isAdmin && !isSuperAdmin && !isTeacher) {
+    if (!isAdmin && !userIsSuperAdmin && !isTeacher) {
       router.push('/dashboard');
       return;
     }
 
     fetchUsers();
-  }, [session, router, isAdmin, isSuperAdmin, isTeacher, selectedRole]);
+  }, [session, router, isAdmin, userIsSuperAdmin, isTeacher, selectedRole]);
 
   const fetchUsers = async () => {
     try {
@@ -40,7 +41,7 @@ export default function Portfolios() {
       let endpoint = '/api/users/students';
       
       // If admin/superadmin and teacher role is selected, use different endpoint
-      if ((isAdmin || isSuperAdmin) && selectedRole === 'teacher') {
+      if ((isAdmin || userIsSuperAdmin) && selectedRole === 'teacher') {
         endpoint = '/api/users/teachers';
       }
       
@@ -79,11 +80,11 @@ export default function Portfolios() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Portfolios</h1>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               {isTeacher && "View all students' badge portfolios"}
-              {(isAdmin || isSuperAdmin) && "View all student and teacher portfolios"}
+              {(isAdmin || userIsSuperAdmin) && "View all student and teacher portfolios"}
             </p>
           </div>
 
-          {(isAdmin || isSuperAdmin) && (
+          {(isAdmin || userIsSuperAdmin) && (
             <div className="mb-6">
               <Tab.Group>
                 <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">

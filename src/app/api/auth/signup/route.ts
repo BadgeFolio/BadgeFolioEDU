@@ -63,6 +63,9 @@ export async function POST(request: Request) {
       }
     }
 
+    // Normalize email (convert to lowercase)
+    const normalizedEmail = email.toLowerCase();
+
     try {
       await dbConnect();
     } catch (dbError) {
@@ -74,7 +77,7 @@ export async function POST(request: Request) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return NextResponse.json(
         { error: 'User already exists' },
@@ -88,7 +91,7 @@ export async function POST(request: Request) {
     // Create user
     const user = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       role: finalRole
     });

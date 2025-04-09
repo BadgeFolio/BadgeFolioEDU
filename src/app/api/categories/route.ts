@@ -3,8 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { Category, User, Badge } from '@/lib/models';
-
-const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
+import { isSuperAdmin } from '@/lib/email';
 
 // Get all categories
 export async function GET(request: Request) {
@@ -42,8 +41,8 @@ export async function POST(request: Request) {
 
     // Only admins and super admin can create categories
     const isAdmin = (session?.user as any)?.role === 'admin';
-    const isSuperAdmin = session.user.email === SUPER_ADMIN_EMAIL;
-    if (!isAdmin && !isSuperAdmin) {
+    const userIsSuperAdmin = isSuperAdmin(session.user.email);
+    if (!isAdmin && !userIsSuperAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -91,8 +90,8 @@ export async function PUT(request: Request) {
 
     // Only admins and super admin can update categories
     const isAdmin = (session?.user as any)?.role === 'admin';
-    const isSuperAdmin = session.user.email === SUPER_ADMIN_EMAIL;
-    if (!isAdmin && !isSuperAdmin) {
+    const userIsSuperAdmin = isSuperAdmin(session.user.email);
+    if (!isAdmin && !userIsSuperAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -238,7 +237,7 @@ export async function DELETE(request: Request) {
     }
 
     // Only super admin can delete categories
-    if (session.user.email !== SUPER_ADMIN_EMAIL) {
+    if (!isSuperAdmin(session.user.email)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

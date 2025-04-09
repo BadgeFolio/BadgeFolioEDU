@@ -5,6 +5,7 @@ import dbConnect from '@/lib/mongoose';
 import { User, Badge, Category } from '@/lib/models';
 import { v2 as cloudinary } from 'cloudinary';
 import { SortOrder } from 'mongoose';
+import { isSuperAdmin } from '@/lib/email';
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
@@ -232,20 +233,20 @@ export async function GET(request: Request) {
           return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
         
-        const isSuperAdmin = user?.email === 'emailmrdavola@gmail.com';
+        const userIsSuperAdmin = isSuperAdmin(user?.email);
         
         // If not super admin and isPublic is specified, apply the filter
-        if (!isSuperAdmin && isPublic !== null) {
+        if (!userIsSuperAdmin && isPublic !== null) {
           query.isPublic = isPublic === 'true';
         }
         
         // If not super admin and creatorId is specified, apply the filter
-        if (!isSuperAdmin && creatorId) {
+        if (!userIsSuperAdmin && creatorId) {
           query.creatorId = creatorId;
         }
         
         // If not super admin and not a specific query, show public badges and own badges
-        if (!isSuperAdmin && !creatorId && isPublic === null) {
+        if (!userIsSuperAdmin && !creatorId && isPublic === null) {
           query.$or = [
             { isPublic: true },
             { creatorId: user?._id }

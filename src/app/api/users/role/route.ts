@@ -6,8 +6,7 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import { User } from '@/lib/models';
 import bcrypt from 'bcryptjs';
-
-const SUPER_ADMIN_EMAIL = 'emailmrdavola@gmail.com';
+import { isSameEmail, isSuperAdmin, SUPER_ADMIN_EMAIL } from '@/lib/email';
 
 export async function PUT(request: Request) {
   try {
@@ -19,6 +18,7 @@ export async function PUT(request: Request) {
     }
 
     const { email, role, newPassword } = await request.json();
+    const normalizedEmail = email.toLowerCase();
 
     // Validate role if provided
     if (role && role !== 'student' && role !== 'teacher' && role !== 'admin') {
@@ -29,13 +29,13 @@ export async function PUT(request: Request) {
     await dbConnect();
 
     // Get the current user
-    const currentUser = await User.findOne({ email: session.user.email });
+    const currentUser = await User.findOne({ email: session.user.email.toLowerCase() });
     if (!currentUser) {
       return NextResponse.json({ error: 'Current user not found' }, { status: 404 });
     }
 
     // Get the target user
-    const targetUser = await User.findOne({ email });
+    const targetUser = await User.findOne({ email: normalizedEmail });
     if (!targetUser) {
       return NextResponse.json({ error: 'Target user not found' }, { status: 404 });
     }
@@ -51,7 +51,7 @@ export async function PUT(request: Request) {
     const updateData: any = {};
     
     // Super admin can do anything
-    if (session.user.email === SUPER_ADMIN_EMAIL) {
+    if (isSuperAdmin(session.user.email)) {
       // Update role if provided
       if (role) {
         updateData.role = role;
@@ -66,7 +66,7 @@ export async function PUT(request: Request) {
 
       // Update the user
       const updatedUser = await User.findOneAndUpdate(
-        { email },
+        { email: normalizedEmail },
         updateData,
         { 
           new: true,
@@ -159,7 +159,7 @@ export async function PUT(request: Request) {
 
     // Update the user
     const updatedUser = await User.findOneAndUpdate(
-      { email },
+      { email: normalizedEmail },
       updateData,
       { 
         new: true,
@@ -203,11 +203,11 @@ export async function GET(request: Request) {
     }
     
     const userRole = (session.user as any)?.role;
-    const isSuperAdmin = session.user.email === SUPER_ADMIN_EMAIL;
+    const userIsSuperAdmin = isSuperAdmin(session.user.email);
     const isAdmin = userRole === 'admin';
     const isTeacher = userRole === 'teacher';
     
-    if (!isSuperAdmin && !isAdmin && !isTeacher) {
+    if (!userIsSuperAdmin && !isAdmin && !isTeacher) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
