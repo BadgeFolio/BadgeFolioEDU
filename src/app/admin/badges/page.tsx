@@ -18,7 +18,7 @@ interface AdminBadge extends PopulatedBadge {
   selected?: boolean;
 }
 
-// Type guard to check if creatorId is an object with name property
+// Type guard to check if creatorId is an object with email property
 function isPopulatedCreator(creator: any): creator is { _id: string; name?: string; email: string } {
   return typeof creator === 'object' && creator !== null && 'email' in creator;
 }
