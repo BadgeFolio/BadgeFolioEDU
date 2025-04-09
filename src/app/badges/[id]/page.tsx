@@ -339,7 +339,8 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                           badge={{
                             ...badge,
                             category: typeof badge.category === 'object' ? (badge.category._id || '') : badge.category,
-                            creatorId: typeof badge.creatorId === 'object' ? badge.creatorId._id : badge.creatorId
+                            creatorId: typeof badge.creatorId === 'object' ? badge.creatorId._id : badge.creatorId,
+                            approvedBy: typeof badge.approvedBy === 'object' ? badge.approvedBy._id : badge.approvedBy
                           }} 
                         />
                       </div>
