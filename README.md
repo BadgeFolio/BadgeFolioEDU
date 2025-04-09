@@ -15,6 +15,10 @@ Last deployment test: 2025-04-06 01:50 UTC
 - Learning pathways
 - Community achievement wall
 - Google Classroom integration (coming soon)
+- Student portfolios
+- Badge approval system for teachers and administrators
+- Customizable badge categories
+- Student badge submissions and approvals
 
 ## Tech Stack
 
