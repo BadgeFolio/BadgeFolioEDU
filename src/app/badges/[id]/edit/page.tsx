@@ -33,7 +33,7 @@ export default function EditBadgePage({ params }: { params: { id: string } }) {
       return;
     }
 
-    if ((session?.user as any)?.role !== 'teacher') {
+    if ((session?.user as any)?.role !== 'teacher' && (session?.user as any)?.role !== 'admin') {
       router.push('/dashboard');
       return;
     }
