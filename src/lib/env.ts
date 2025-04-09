@@ -37,6 +37,19 @@ export function getEnvVariable(key: string, defaultValue?: string): string {
       return 'build-phase-secret';
     }
     
+    // Cloudinary fallbacks for development only
+    if (key === 'CLOUDINARY_CLOUD_NAME' && process.env.NODE_ENV !== 'production') {
+      return 'dev-cloud';
+    }
+    
+    if (key === 'CLOUDINARY_API_KEY' && process.env.NODE_ENV !== 'production') {
+      return 'dev-key';
+    }
+    
+    if (key === 'CLOUDINARY_API_SECRET' && process.env.NODE_ENV !== 'production') {
+      return 'dev-secret';
+    }
+    
     console.error(`Environment variable ${key} is missing`);
     throw new Error(`Please provide process.env.${key}`);
   }
@@ -54,4 +67,7 @@ export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   ADMIN_INVITE_CODE: process.env.ADMIN_INVITE_CODE || 'admin-code',
   TEACHER_INVITE_CODE: process.env.TEACHER_INVITE_CODE || 'teacher-code',
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 }; 

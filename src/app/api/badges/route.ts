@@ -6,12 +6,23 @@ import { User, Badge, Category } from '@/lib/models';
 import { v2 as cloudinary } from 'cloudinary';
 import { SortOrder } from 'mongoose';
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Validate Cloudinary configuration
+const cloudinaryConfigured = !!(
+  process.env.CLOUDINARY_CLOUD_NAME && 
+  process.env.CLOUDINARY_API_KEY && 
+  process.env.CLOUDINARY_API_SECRET
+);
+
+// Configure Cloudinary if all needed env vars are present
+if (cloudinaryConfigured) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+} else {
+  console.warn('Warning: Cloudinary is not properly configured. Image uploads will not work.');
+}
 
 interface CloudinaryResult {
   secure_url: string;
@@ -106,6 +117,15 @@ export async function POST(request: Request) {
     // Handle image upload if present
     const imageFile = formData.get('image') as File;
     if (imageFile) {
+      // Check if Cloudinary is configured
+      if (!cloudinaryConfigured) {
+        console.error('Cloudinary not configured, skipping image upload');
+        return NextResponse.json({ 
+          error: 'Image upload failed', 
+          details: 'Cloudinary is not configured properly' 
+        }, { status: 500 });
+      }
+      
       try {
         console.log('Processing image upload...');
         // Convert the file to a buffer
