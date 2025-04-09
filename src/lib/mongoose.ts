@@ -1,10 +1,12 @@
 import mongoose from 'mongoose';
 
+// Better detection of build/static generation phases
+const isBuildPhase = process.env.NODE_ENV === 'production' && 
+  (process.env.NEXT_PHASE === 'phase-production-build' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'production');
+
 // Try to get MongoDB URI from different sources with a fallback for build environment
 const MONGODB_URI = process.env.MONGODB_URI || 
-  (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build' 
-    ? 'mongodb://placeholder-for-build:27017/placeholder-db' 
-    : '');
+  (isBuildPhase ? 'mongodb://placeholder-for-build:27017/placeholder-db' : '');
 
 // Interface for global mongoose cache
 interface MongooseCache {
@@ -30,26 +32,27 @@ async function dbConnect() {
     return cached.conn;
   }
 
-  // For next.js build process, just return mongoose without connecting
-  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
-    console.warn('MongoDB URI not needed during build phase. Skipping connection.');
+  // For build process or static generation, just return mongoose without connecting
+  if (isBuildPhase) {
+    console.warn('Build or static generation detected. Skipping MongoDB connection.');
     return mongoose;
   }
 
   // Check if we have a MongoDB URI
   if (!MONGODB_URI) {
     console.error('MongoDB URI is not defined! Check your environment variables.');
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       throw new Error(
-        'Please define the MONGODB_URI environment variable inside .env.local'
+        'Please add your Mongo URI to .env.local'
       );
     } else {
       // In production but not build phase, log but don't crash
-      console.warn('Missing MongoDB URI in production. Some features may not work.');
+      console.warn('Missing MongoDB URI in production environment. Some features may not work.');
       return mongoose;
     }
   }
 
+  // If not in build phase and we have a MongoDB URI, connect
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
