@@ -52,14 +52,6 @@ export async function PUT(
       );
     }
 
-    // Verify that this teacher is the one who should review this submission
-    if (submission.teacherId.toString() !== teacher._id.toString()) {
-      return NextResponse.json(
-        { error: 'You can only review submissions assigned to you' },
-        { status: 403 }
-      );
-    }
-
     // Update submission status
     submission.status = status;
     if (comment) {

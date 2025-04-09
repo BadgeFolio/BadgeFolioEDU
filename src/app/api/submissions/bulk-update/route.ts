@@ -65,9 +65,10 @@ export async function POST(request: Request) {
 
     // Check if teacher can update these submissions
     // For admins, allow updating any submissions
-    if (user.role === 'teacher') {
-      query.teacherId = user._id;
-    }
+    // Removed restriction for teachers - any teacher can approve/reject
+    // if (user.role === 'teacher') {
+    //   query.teacherId = user._id;
+    // }
 
     // Find all the submissions to update
     const submissions = await Submission.find(query);

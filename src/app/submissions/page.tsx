@@ -32,14 +32,14 @@ export default function SubmissionsPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState('pending');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [selectedSubmissions, setSelectedSubmissions] = useState<string[]>([]);
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
   const [teachers, setTeachers] = useState<Array<{ _id: string; name: string; email: string }>>([]);
   const [selectedTeacher, setSelectedTeacher] = useState<string>('');
+  const [currentUserId, setCurrentUserId] = useState<string>('');
 
   const isTeacher = (session?.user as any)?.role === 'teacher';
   const isAdmin = (session?.user as any)?.role === 'admin';
@@ -47,12 +47,28 @@ export default function SubmissionsPage() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      fetchSubmissions(activeTab === 'all' ? '' : activeTab);
       if (canModerate) {
         fetchTeachers();
       }
     }
-  }, [activeTab, status, canModerate]);
+  }, [status, canModerate]);
+
+  // Set initial filters once we have teachers data and current user
+  useEffect(() => {
+    if (canModerate && session?.user?.email && teachers.length > 0) {
+      // Find current user in teachers list
+      const currentTeacher = teachers.find(t => t.email === session.user?.email);
+      if (currentTeacher) {
+        setCurrentUserId(currentTeacher._id);
+        setSelectedTeacher(currentTeacher._id);
+        fetchSubmissions('pending', currentTeacher._id);
+      } else {
+        fetchSubmissions('pending');
+      }
+    } else if (status === 'authenticated') {
+      fetchSubmissions(activeTab === 'all' ? '' : activeTab);
+    }
+  }, [teachers, session?.user?.email, status, canModerate]);
 
   // Fetch teachers for the filter dropdown
   const fetchTeachers = async () => {
@@ -76,7 +92,7 @@ export default function SubmissionsPage() {
     })));
   }, [submissions]);
 
-  const fetchSubmissions = async (statusFilter = '') => {
+  const fetchSubmissions = async (statusFilter = '', teacherId = '') => {
     try {
       setLoading(true);
       let queryParams = new URLSearchParams();
@@ -85,8 +101,8 @@ export default function SubmissionsPage() {
         queryParams.append('status', statusFilter);
       }
       
-      if (selectedTeacher) {
-        queryParams.append('teacherId', selectedTeacher);
+      if (teacherId) {
+        queryParams.append('teacherId', teacherId);
       }
       
       const res = await fetch(`/api/submissions?${queryParams.toString()}`);
@@ -221,7 +237,7 @@ export default function SubmissionsPage() {
   // Update tab click handler to change both the active tab and fetch submissions
   const handleTabClick = (tab: TabType) => {
     setActiveTab(tab);
-    fetchSubmissions(tab === 'all' ? '' : tab);
+    fetchSubmissions(tab === 'all' ? '' : tab, selectedTeacher);
   };
 
   // Handle selecting a submission
@@ -267,7 +283,7 @@ export default function SubmissionsPage() {
       
       const data = await res.json();
       toast.success(`Successfully approved ${data.updatedCount} submissions`);
-      fetchSubmissions(activeTab === 'all' ? '' : activeTab);
+      fetchSubmissions();
       setSelectedSubmissions([]);
     } catch (error) {
       console.error('Error approving submissions:', error);
@@ -306,7 +322,7 @@ export default function SubmissionsPage() {
       
       const data = await res.json();
       toast.success(`Successfully rejected ${data.updatedCount} submissions`);
-      fetchSubmissions(activeTab === 'all' ? '' : activeTab);
+      fetchSubmissions();
       setSelectedSubmissions([]);
     } catch (error) {
       console.error('Error rejecting submissions:', error);
@@ -320,7 +336,7 @@ export default function SubmissionsPage() {
   const handleTeacherChange = (teacherId: string) => {
     setSelectedTeacher(teacherId);
     // Refetch submissions with new teacher filter
-    fetchSubmissions(activeTab === 'all' ? '' : activeTab);
+    fetchSubmissions(activeTab === 'all' ? '' : activeTab, teacherId);
   };
 
   if (status === 'loading' || loading) {
