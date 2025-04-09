@@ -10,7 +10,7 @@ import { authOptions } from '@/lib/auth';
 
 // Add dynamic configuration
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 // Extend the built-in types
 declare module 'next-auth' {

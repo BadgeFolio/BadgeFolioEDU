@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please add your MongoDB URI to .env');
+  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
 interface MongooseCache {
@@ -30,40 +30,20 @@ async function dbConnect() {
     const opts = {
       bufferCommands: false,
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      family: 4,
-      retryWrites: true
+      family: 4
     };
 
-    try {
-      console.log('Attempting to connect to MongoDB...');
-      cached.promise = mongoose.connect(MONGODB_URI as string, opts)
-        .then((mongoose) => {
-          console.log('MongoDB connected successfully');
-          mongoose.connection.on('error', (err) => {
-            console.error('MongoDB connection error:', err);
-          });
-          mongoose.connection.on('disconnected', () => {
-            console.log('MongoDB disconnected');
-            cached.conn = null;
-            cached.promise = null;
-          });
-          mongoose.connection.on('reconnected', () => {
-            console.log('MongoDB reconnected');
-          });
-          return mongoose;
-        })
-        .catch((err) => {
-          console.error('MongoDB connection error:', err);
-          cached.promise = null;
-          throw err;
-        });
-    } catch (error) {
-      console.error('Error during MongoDB connection setup:', error);
-      cached.promise = null;
-      throw error;
-    }
+    cached.promise = mongoose.connect(MONGODB_URI as string, opts)
+      .then((mongoose) => {
+        console.log('MongoDB connected successfully');
+        return mongoose;
+      })
+      .catch((err) => {
+        console.error('MongoDB connection error:', err);
+        throw err;
+      });
   }
 
   try {
@@ -83,8 +63,8 @@ process.on('SIGINT', async () => {
     await mongoose.connection.close();
     console.log('MongoDB connection closed through app termination');
     process.exit(0);
-  } catch (error) {
-    console.error('Error closing MongoDB connection:', error);
+  } catch (err) {
+    console.error('Error closing MongoDB connection:', err);
     process.exit(1);
   }
 });

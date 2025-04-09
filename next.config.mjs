@@ -3,11 +3,12 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: ['res.cloudinary.com'],
-    unoptimized: true
   },
-  // Add MongoDB configuration
+  // Disable static exports since we're using server-side features
+  output: 'standalone',
+  // Enable server-side features
   experimental: {
-    serverComponentsExternalPackages: ['mongoose']
+    serverActions: true,
   }
 };
 
