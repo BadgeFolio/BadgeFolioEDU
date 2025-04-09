@@ -344,7 +344,7 @@ export default function CommunityWallPage() {
                             </span>
                             {(event.item as EarnedBadge).approvedBy && (
                               <span className="text-xs">
-                                Approved by {(event.item as EarnedBadge).approvedBy.name}
+                                Approved by {(event.item as EarnedBadge).approvedBy?.name}
                               </span>
                             )}
                           </div>
