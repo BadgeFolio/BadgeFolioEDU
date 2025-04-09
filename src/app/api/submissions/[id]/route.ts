@@ -84,6 +84,7 @@ export async function PUT(
           const earnedBadge = await EarnedBadge.create({
             badge: submission.badgeId._id,
             student: submission.studentId._id,
+            approvedBy: teacher._id,
             reactions: [],
             createdAt: new Date()
           });
@@ -91,7 +92,8 @@ export async function PUT(
           // Verify the earned badge was created with proper references
           const verifiedEarnedBadge = await EarnedBadge.findById(earnedBadge._id)
             .populate('badge')
-            .populate('student');
+            .populate('student')
+            .populate('approvedBy');
 
           if (!verifiedEarnedBadge?.badge || !verifiedEarnedBadge?.student) {
             throw new Error('Failed to create earned badge with proper references');

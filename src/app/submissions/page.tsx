@@ -38,6 +38,8 @@ export default function SubmissionsPage() {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [selectedSubmissions, setSelectedSubmissions] = useState<string[]>([]);
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const [teachers, setTeachers] = useState<Array<{ _id: string; name: string; email: string }>>([]);
+  const [selectedTeacher, setSelectedTeacher] = useState<string>('');
 
   const isTeacher = (session?.user as any)?.role === 'teacher';
   const isAdmin = (session?.user as any)?.role === 'admin';
@@ -46,8 +48,23 @@ export default function SubmissionsPage() {
   useEffect(() => {
     if (status === 'authenticated') {
       fetchSubmissions(activeTab === 'all' ? '' : activeTab);
+      if (canModerate) {
+        fetchTeachers();
+      }
     }
-  }, [activeTab, status]);
+  }, [activeTab, status, canModerate]);
+
+  // Fetch teachers for the filter dropdown
+  const fetchTeachers = async () => {
+    try {
+      const res = await fetch('/api/users?role=teacher');
+      if (!res.ok) throw new Error('Failed to fetch teachers');
+      const data = await res.json();
+      setTeachers(data || []);
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+    }
+  };
 
   // Add logging for submissions data
   useEffect(() => {
@@ -62,8 +79,17 @@ export default function SubmissionsPage() {
   const fetchSubmissions = async (statusFilter = '') => {
     try {
       setLoading(true);
-      const queryParam = statusFilter ? `status=${statusFilter}` : '';
-      const res = await fetch(`/api/submissions?${queryParam}`);
+      let queryParams = new URLSearchParams();
+      
+      if (statusFilter) {
+        queryParams.append('status', statusFilter);
+      }
+      
+      if (selectedTeacher) {
+        queryParams.append('teacherId', selectedTeacher);
+      }
+      
+      const res = await fetch(`/api/submissions?${queryParams.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch submissions');
       const data = await res.json();
       console.log('Fetched submissions:', JSON.stringify(data, null, 2));
@@ -159,10 +185,14 @@ export default function SubmissionsPage() {
     const badgeName = typeof submission.badgeId === 'string' ? '' : submission.badgeId?.name?.toLowerCase() || '';
     const studentEmail = typeof submission.studentId === 'string' ? '' : submission.studentId?.email?.toLowerCase() || '';
     const studentName = typeof submission.studentId === 'string' ? '' : submission.studentId?.name?.toLowerCase() || '';
+    const teacherEmail = typeof submission.teacherId === 'string' ? '' : submission.teacherId?.email?.toLowerCase() || '';
+    const teacherName = typeof submission.teacherId === 'string' ? '' : submission.teacherId?.name?.toLowerCase() || '';
     
     return badgeName.includes(searchTerm) || 
            studentEmail.includes(searchTerm) || 
-           studentName.includes(searchTerm);
+           studentName.includes(searchTerm) ||
+           teacherEmail.includes(searchTerm) ||
+           teacherName.includes(searchTerm);
   }));
 
   const handleCleanup = async () => {
@@ -286,6 +316,13 @@ export default function SubmissionsPage() {
     }
   };
 
+  // Update teacher filter handling
+  const handleTeacherChange = (teacherId: string) => {
+    setSelectedTeacher(teacherId);
+    // Refetch submissions with new teacher filter
+    fetchSubmissions(activeTab === 'all' ? '' : activeTab);
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -363,6 +400,23 @@ export default function SubmissionsPage() {
                     <option value="oldest">Oldest First</option>
                   </select>
                 </div>
+                {canModerate && (
+                  <div>
+                    <select
+                      id="teacher-filter"
+                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      value={selectedTeacher}
+                      onChange={(e) => handleTeacherChange(e.target.value)}
+                    >
+                      <option value="">All Badge Publishers</option>
+                      {teachers.map(teacher => (
+                        <option key={teacher._id} value={teacher._id}>
+                          {teacher.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
             
@@ -484,10 +538,16 @@ export default function SubmissionsPage() {
                       </span>
                     </div>
                   </div>
-                  <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
-                    {typeof submission.badgeId === 'object' && submission.badgeId?.name ? 
-                      `Badge: ${submission.badgeId.name}` : ''}
-                  </p>
+                  <div className="mt-2 flex justify-between">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                      {typeof submission.badgeId === 'object' && submission.badgeId?.name ? 
+                        `Badge: ${submission.badgeId.name}` : ''}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {typeof submission.teacherId === 'object' && submission.teacherId?.name ? 
+                        `Published by: ${submission.teacherId.name}` : ''}
+                    </p>
+                  </div>
                 </div>
                 <div className="px-4 py-4 sm:px-6 space-y-2">
                   {submission.evidence && (

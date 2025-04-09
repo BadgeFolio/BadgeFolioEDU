@@ -182,6 +182,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const userId = searchParams.get('userId');
+    const teacherId = searchParams.get('teacherId');
 
     // Get the current user
     const currentUser = await User.findOne({ email: session.user.email });
@@ -192,9 +193,13 @@ export async function GET(request: Request) {
     // Build the query
     const query: any = {};
     
-    if (currentUser.role === 'teacher') {
-      query.teacherId = currentUser._id;
+    if (currentUser.role === 'teacher' || currentUser.role === 'admin') {
+      // Teachers can see all submissions or filter by teacherId
+      if (teacherId) {
+        query.teacherId = new mongoose.Types.ObjectId(teacherId);
+      }
     } else {
+      // Students can only see their own submissions
       query.studentId = userId ? new mongoose.Types.ObjectId(userId) : currentUser._id;
     }
     

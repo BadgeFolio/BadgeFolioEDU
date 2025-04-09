@@ -227,6 +227,7 @@ const classroomSchema = new mongoose.Schema({
 const earnedBadgeSchema = new mongoose.Schema({
   badge: { type: mongoose.Schema.Types.ObjectId, ref: 'Badge', required: true },
   student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   reactions: [{
     type: { type: String, enum: ['👏', '🎉', '🌟', '🏆', '💪'] },
     users: [{ type: String }]

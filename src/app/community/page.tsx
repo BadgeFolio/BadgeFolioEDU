@@ -22,6 +22,12 @@ interface EarnedBadge {
     email: string;
     image?: string;
   };
+  approvedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+    image?: string;
+  };
   reactions: {
     type: '👏' | '🎉' | '🌟' | '🏆' | '💪';
     users: string[];
@@ -330,6 +336,19 @@ export default function CommunityWallPage() {
                             );
                           })}
                         </div>
+
+                        {event.type === 'earned' && (
+                          <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
+                            <span>
+                              Earned by {(event.item as EarnedBadge).student.name}
+                            </span>
+                            {(event.item as EarnedBadge).approvedBy && (
+                              <span className="text-xs">
+                                Approved by {(event.item as EarnedBadge).approvedBy.name}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

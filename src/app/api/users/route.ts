@@ -22,17 +22,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // Check if user has permission
-    const userEmail = session.user.email;
-    const userRole = (session.user as any).role;
-    
-    const isSuperAdmin = userEmail === SUPER_ADMIN_EMAIL;
-    const isAdmin = userRole === 'admin';
-    
-    if (!isSuperAdmin && !isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-    
     // Get query parameters for filtering
     const { searchParams } = new URL(req.url);
     const role = searchParams.get('role');
@@ -41,6 +30,21 @@ export async function GET(req: NextRequest) {
     const filter: any = {};
     if (role) {
       filter.role = role;
+    }
+    
+    // Check if user has permission
+    const userEmail = session.user.email;
+    const userRole = (session.user as any).role;
+    
+    const isSuperAdmin = userEmail === SUPER_ADMIN_EMAIL;
+    const isAdmin = userRole === 'admin';
+    const isTeacher = userRole === 'teacher';
+    
+    // Only allow admin and teachers to fetch teacher list (for submission filtering)
+    // Or admin/super-admin to fetch all users
+    if ((!isSuperAdmin && !isAdmin && !isTeacher) || 
+        (isTeacher && role !== 'teacher')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     
     await dbConnect();

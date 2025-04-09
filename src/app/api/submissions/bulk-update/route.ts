@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
-import { Submission, User, Badge } from '@/lib/models';
+import { Submission, User, Badge, EarnedBadge } from '@/lib/models';
 import mongoose from 'mongoose';
 
 // Force dynamic rendering for this route
@@ -92,11 +92,31 @@ export async function POST(request: Request) {
       // If approving, add the badge to the student's earned badges
       if (status === 'approved') {
         const student = await User.findById(submission.studentId);
-        if (student && !student.earnedBadges.includes(submission.badgeId)) {
-          await User.updateOne(
-            { _id: submission.studentId },
-            { $addToSet: { earnedBadges: submission.badgeId }}
-          );
+        if (student) {
+          // Check if the student already has this badge
+          const existingEarnedBadge = await EarnedBadge.findOne({
+            badge: submission.badgeId,
+            student: submission.studentId
+          });
+
+          if (!existingEarnedBadge) {
+            // Create earned badge with approver information
+            await EarnedBadge.create({
+              badge: submission.badgeId,
+              student: submission.studentId,
+              approvedBy: user._id,
+              reactions: [],
+              createdAt: new Date()
+            });
+          }
+
+          // Add to student's earnedBadges array if not already there
+          if (!student.earnedBadges.includes(submission.badgeId)) {
+            await User.updateOne(
+              { _id: submission.studentId },
+              { $addToSet: { earnedBadges: submission.badgeId }}
+            );
+          }
         }
       }
       

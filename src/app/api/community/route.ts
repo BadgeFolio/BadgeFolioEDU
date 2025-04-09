@@ -30,6 +30,11 @@ export async function GET() {
         select: 'name email image',
         model: 'User'
       })
+      .populate({
+        path: 'approvedBy',
+        select: 'name email image',
+        model: 'User'
+      })
       .sort({ createdAt: -1 })
       .lean()
       .exec();
