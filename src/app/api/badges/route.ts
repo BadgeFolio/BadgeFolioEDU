@@ -48,8 +48,8 @@ export async function POST(request: Request) {
     }
 
     // Only teachers can create badges
-    if (user.role !== 'teacher') {
-      return NextResponse.json({ error: 'Only teachers can create badges' }, { status: 403 });
+    if (user.role !== 'teacher' && user.role !== 'admin') {
+      return NextResponse.json({ error: 'Only teachers and administrators can create badges' }, { status: 403 });
     }
 
     const formData = await request.formData();

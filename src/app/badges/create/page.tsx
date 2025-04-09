@@ -67,7 +67,7 @@ export default function CreateBadgePage() {
     );
   }
 
-  if (!session || (session.user as any).role !== 'teacher') {
+  if (!session || ((session.user as any).role !== 'teacher' && (session.user as any).role !== 'admin')) {
     router.push('/');
     return null;
   }
