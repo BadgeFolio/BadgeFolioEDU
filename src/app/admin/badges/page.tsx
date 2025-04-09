@@ -18,6 +18,11 @@ interface AdminBadge extends PopulatedBadge {
   selected?: boolean;
 }
 
+// Type guard to check if creatorId is an object with name property
+function isPopulatedCreator(creator: any): creator is { _id: string; name?: string; email: string } {
+  return typeof creator === 'object' && creator !== null && 'email' in creator;
+}
+
 export default function AdminBadges() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -31,6 +36,7 @@ export default function AdminBadges() {
   const [deletingBadge, setDeletingBadge] = useState<AdminBadge | null>(null);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [cleaningUp, setCleaningUp] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -62,6 +68,7 @@ export default function AdminBadges() {
     } catch (error) {
       console.error('Error fetching badges:', error);
       toast.error('Failed to load badges');
+      setError('Failed to load badges');
     } finally {
       setLoading(false);
     }
@@ -174,11 +181,24 @@ export default function AdminBadges() {
     badge.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="p-8 flex justify-center items-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Badges</h1>
+            <p className="text-gray-600 dark:text-gray-400">{error}</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
   if (loading) {
     return (
       <MainLayout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div className="flex justify-center items-center h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       </MainLayout>
     );
@@ -313,7 +333,9 @@ export default function AdminBadges() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                          {typeof badge.creatorId === 'object' ? badge.creatorId.name || badge.creatorId.email : 'Unknown'}
+                          {isPopulatedCreator(badge.creatorId) 
+                            ? badge.creatorId.name || badge.creatorId.email 
+                            : 'Unknown'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {new Date(badge.createdAt).toLocaleDateString()}

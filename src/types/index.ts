@@ -43,8 +43,13 @@ export interface Badge {
   updatedAt: Date;
 }
 
-export interface PopulatedBadge extends Omit<Badge, 'category'> {
+export interface PopulatedBadge extends Omit<Badge, 'category' | 'creatorId'> {
   category: SimplifiedCategory;
+  creatorId: {
+    _id: string;
+    name?: string;
+    email: string;
+  };
 }
 
 export interface Submission {
