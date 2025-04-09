@@ -7,7 +7,7 @@ const nextConfig = {
   // Ensure server-side features work properly
   output: 'standalone', // This is better for server components than 'export'
   experimental: {
-    serverActions: true,
+    // Remove serverActions as it's now enabled by default
   },
   // Handle environment variables for build vs runtime
   webpack: (config, { isServer }) => {
