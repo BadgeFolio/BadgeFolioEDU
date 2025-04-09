@@ -36,8 +36,12 @@ export default function SubmissionsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [selectedSubmissions, setSelectedSubmissions] = useState<string[]>([]);
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
   const isTeacher = (session?.user as any)?.role === 'teacher';
+  const isAdmin = (session?.user as any)?.role === 'admin';
+  const canModerate = isTeacher || isAdmin;
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -190,6 +194,98 @@ export default function SubmissionsPage() {
     fetchSubmissions(tab === 'all' ? '' : tab);
   };
 
+  // Handle selecting a submission
+  const handleSelectSubmission = (submissionId: string) => {
+    setSelectedSubmissions(prev => 
+      prev.includes(submissionId) 
+        ? prev.filter(id => id !== submissionId) 
+        : [...prev, submissionId]
+    );
+  };
+
+  // Handle selecting all submissions
+  const handleSelectAllSubmissions = () => {
+    if (selectedSubmissions.length === filteredSubmissions.length) {
+      setSelectedSubmissions([]);
+    } else {
+      setSelectedSubmissions(filteredSubmissions.map(sub => sub._id));
+    }
+  };
+
+  // Handle bulk approve
+  const handleBulkApprove = async () => {
+    if (selectedSubmissions.length === 0) {
+      toast.error('No submissions selected');
+      return;
+    }
+    
+    setIsBulkProcessing(true);
+    try {
+      const res = await fetch('/api/submissions/bulk-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionIds: selectedSubmissions,
+          status: 'approved'
+        }),
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to approve submissions');
+      }
+      
+      const data = await res.json();
+      toast.success(`Successfully approved ${data.updatedCount} submissions`);
+      fetchSubmissions(activeTab === 'all' ? '' : activeTab);
+      setSelectedSubmissions([]);
+    } catch (error) {
+      console.error('Error approving submissions:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to approve submissions');
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  // Handle bulk reject
+  const handleBulkReject = async () => {
+    if (selectedSubmissions.length === 0) {
+      toast.error('No submissions selected');
+      return;
+    }
+    
+    const reason = prompt('Reason for rejection:');
+    if (!reason) return;
+    
+    setIsBulkProcessing(true);
+    try {
+      const res = await fetch('/api/submissions/bulk-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionIds: selectedSubmissions,
+          status: 'rejected',
+          comment: reason
+        }),
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to reject submissions');
+      }
+      
+      const data = await res.json();
+      toast.success(`Successfully rejected ${data.updatedCount} submissions`);
+      fetchSubmissions(activeTab === 'all' ? '' : activeTab);
+      setSelectedSubmissions([]);
+    } catch (error) {
+      console.error('Error rejecting submissions:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to reject submissions');
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -269,6 +365,44 @@ export default function SubmissionsPage() {
                 </div>
               </div>
             </div>
+            
+            {canModerate && filteredSubmissions.length > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="select-all"
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    checked={selectedSubmissions.length > 0 && selectedSubmissions.length === filteredSubmissions.length}
+                    onChange={handleSelectAllSubmissions}
+                  />
+                  <label htmlFor="select-all" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    {selectedSubmissions.length > 0 ? `Selected ${selectedSubmissions.length}` : 'Select All'}
+                  </label>
+                </div>
+                
+                {selectedSubmissions.length > 0 && (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleBulkApprove}
+                      disabled={isBulkProcessing}
+                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                    >
+                      <CheckIcon className="-ml-0.5 mr-1.5 h-4 w-4" />
+                      Approve All Selected
+                    </button>
+                    <button
+                      onClick={handleBulkReject}
+                      disabled={isBulkProcessing}
+                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                    >
+                      <XMarkIcon className="-ml-0.5 mr-1.5 h-4 w-4" />
+                      Reject All Selected
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -318,6 +452,17 @@ export default function SubmissionsPage() {
                 <div className="px-4 py-5 sm:px-6">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
+                      {canModerate && (
+                        <div className="flex items-center mb-2">
+                          <input
+                            type="checkbox"
+                            id={`select-${submission._id}`}
+                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                            checked={selectedSubmissions.includes(submission._id)}
+                            onChange={() => handleSelectSubmission(submission._id)}
+                          />
+                        </div>
+                      )}
                       <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 truncate">
                         {typeof submission.badgeId === 'object' && submission.badgeId?.name ? 
                           submission.badgeId.name : 'Badge'}
