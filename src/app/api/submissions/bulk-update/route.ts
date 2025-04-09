@@ -8,6 +8,20 @@ import mongoose from 'mongoose';
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 
+// Define a simple type for the submission document
+type SubmissionDoc = {
+  _id: mongoose.Types.ObjectId;
+  badgeId: mongoose.Types.ObjectId;
+  studentId: mongoose.Types.ObjectId;
+  status: string;
+  comments: Array<{
+    content: string;
+    userId: mongoose.Types.ObjectId;
+    createdAt: Date;
+  }>;
+  save(): Promise<any>;
+};
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -63,7 +77,7 @@ export async function POST(request: Request) {
     }
 
     // Update each submission
-    const updatePromises = submissions.map(async (submission) => {
+    const updatePromises = submissions.map(async (submission: SubmissionDoc) => {
       submission.status = status;
       
       // Add comment if provided
