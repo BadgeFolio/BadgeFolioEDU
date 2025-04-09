@@ -5,6 +5,7 @@ import dbConnect from '@/lib/mongoose';
 import { User } from '@/lib/models';
 import bcrypt from 'bcryptjs';
 import { isBuildPhase, env } from '@/lib/env';
+import { normalizeEmail } from '@/lib/email';
 
 // Extend the built-in types
 declare module 'next-auth' {
@@ -60,12 +61,53 @@ export const authOptions: NextAuthOptions = {
         try {
           await dbConnect();
           // Convert email to lowercase for case-insensitive lookup
-          const normalizedEmail = credentials.email.toLowerCase();
+          const normalizedEmail = credentials.email.toLowerCase().trim();
           console.log('Looking for user with email:', normalizedEmail);
           
           const user = await User.findOne({ email: normalizedEmail });
           
           if (!user) {
+            // If user not found, log for debugging
+            console.log(`User with email ${normalizedEmail} not found. Trying to find similar emails...`);
+            
+            // For debugging, check if there's a case sensitivity issue
+            const similarUsers = await User.find({ 
+              email: { $regex: new RegExp(`^${normalizedEmail.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i') } 
+            });
+            
+            if (similarUsers.length > 0) {
+              console.log('Found similar users with case differences:', similarUsers.map((u: any) => u.email));
+              
+              // Automatically fix the case issue by updating the user's email to lowercase
+              if (similarUsers.length === 1) {
+                const userToFix = similarUsers[0];
+                console.log(`Fixing email case for user ${userToFix.name}: ${userToFix.email} → ${normalizedEmail}`);
+                
+                await User.updateOne(
+                  { _id: userToFix._id },
+                  { $set: { email: normalizedEmail } }
+                );
+                
+                // Use the user with fixed email
+                const updatedUser = await User.findById(userToFix._id);
+                
+                // Check password for the fixed user
+                const isPasswordValid = await bcrypt.compare(credentials.password, updatedUser.password);
+                
+                if (!isPasswordValid) {
+                  throw new Error('Invalid password');
+                }
+                
+                return {
+                  id: updatedUser._id.toString(),
+                  email: updatedUser.email,
+                  name: updatedUser.name,
+                  role: updatedUser.role,
+                  image: updatedUser.image
+                };
+              }
+            }
+            
             throw new Error('No user found with this email');
           }
 
