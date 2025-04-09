@@ -139,6 +139,7 @@ export default function BadgeForm({ onSubmit, initialData }: BadgeFormProps) {
                 width={128}
                 height={128}
                 className="object-cover"
+                unoptimized={true}
               />
             ) : (
               <div className="text-center">

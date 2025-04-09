@@ -8,6 +8,9 @@ import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 import { NextRequest } from 'next/server';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 interface EvidenceFile {
   url: string;
   type: 'image' | 'document' | 'drawing';

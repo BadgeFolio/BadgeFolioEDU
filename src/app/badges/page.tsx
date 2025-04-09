@@ -61,12 +61,23 @@ export default function Badges() {
         setCategories(Array.isArray(categoriesData) ? categoriesData : []);
 
         if (!isTeacher && submissionsRes) {
-          const submissionsData = await submissionsRes.json();
-          setSubmissions(submissionsData || []);
+          try {
+            const submissionsData = await submissionsRes.json();
+            console.log('Submissions data:', submissionsData);
+            // Ensure we're setting an array even if the API returns null/undefined
+            setSubmissions(Array.isArray(submissionsData) ? submissionsData : []);
+          } catch (submissionError) {
+            console.error('Error processing submissions:', submissionError);
+            setSubmissions([]);
+          }
+        } else {
+          // Explicitly set submissions to empty array if teacher or no response
+          setSubmissions([]);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to load data');
+        // Ensure submissions is always an array
         setSubmissions([]);
       } finally {
         setLoading(false);
@@ -75,11 +86,16 @@ export default function Badges() {
 
     if (status === 'authenticated') {
       fetchData();
+    } else {
+      // Reset state when not authenticated
+      setSubmissions([]);
+      setBadges([]);
+      setCategories([]);
     }
   }, [status, isTeacher]);
 
   const getSubmissionStatus = (badgeId: string) => {
-    if (!submissions || !badgeId) return undefined;
+    if (!submissions || !Array.isArray(submissions) || submissions.length === 0 || !badgeId) return undefined;
     const hasApprovedSubmission = submissions.some(s => 
       s?.badgeId && typeof s.badgeId === 'object' && '_id' in s.badgeId && s.badgeId._id === badgeId && s.status === 'approved'
     );
@@ -149,7 +165,7 @@ export default function Badges() {
     if (!badge?._id || !badge?.category) return false;
     const matchesCategory = selectedCategory === 'All' || badge.category.name === selectedCategory;
     
-    if (!isTeacher) {
+    if (!isTeacher && Array.isArray(submissions)) {
       const submission = submissions.find(s => 
         s?.badgeId && typeof s.badgeId === 'object' && '_id' in s.badgeId && s.badgeId._id === badge._id
       );
@@ -290,6 +306,7 @@ export default function Badges() {
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                             className="object-cover rounded-lg"
+                            unoptimized={badge.image?.includes('cloudinary.com') || false}
                           />
                         </div>
                         <div className="mt-4">

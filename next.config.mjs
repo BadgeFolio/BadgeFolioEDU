@@ -2,12 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['images.unsplash.com', 'via.placeholder.com'],
+    domains: ['images.unsplash.com', 'via.placeholder.com', 'res.cloudinary.com'],
   },
   // Ensure server-side features work properly
   output: 'standalone', // This is better for server components than 'export'
   experimental: {
-    // Remove serverActions as it's now enabled by default
+    // Empty experimental object - serverActions is enabled by default in Next.js 14+
   },
   // Handle environment variables for build vs runtime
   webpack: (config, { isServer }) => {

@@ -6,6 +6,9 @@ import { User, Badge, Category } from '@/lib/models';
 import { v2 as cloudinary } from 'cloudinary';
 import { SortOrder } from 'mongoose';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 // Validate Cloudinary configuration
 const cloudinaryConfigured = !!(
   process.env.CLOUDINARY_CLOUD_NAME && 
