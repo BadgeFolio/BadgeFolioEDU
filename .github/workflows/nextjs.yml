@@ -19,14 +19,23 @@ permissions:
   id-token: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: "vercel-${{ github.ref }}"
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      ADMIN_INVITE_CODE: ${{ secrets.ADMIN_INVITE_CODE }}
+      TEACHER_INVITE_CODE: ${{ secrets.TEACHER_INVITE_CODE }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      NODE_ENV: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,17 +49,37 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Build
-        run: npm run build
-        env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          ADMIN_INVITE_CODE: ${{ secrets.ADMIN_INVITE_CODE }}
-          TEACHER_INVITE_CODE: ${{ secrets.TEACHER_INVITE_CODE }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      - name: Create .env.local file
+        run: |
+          echo "MONGODB_URI=$MONGODB_URI" > .env.local
+          echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> .env.local
+          echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> .env.local
+          echo "ADMIN_INVITE_CODE=$ADMIN_INVITE_CODE" >> .env.local
+          echo "TEACHER_INVITE_CODE=$TEACHER_INVITE_CODE" >> .env.local
+          echo "CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME" >> .env.local
+          echo "CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY" >> .env.local
+          echo "CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET" >> .env.local
+          
+      - name: Verify .env.local
+        run: |
+          ls -la .env.local
+          echo "First few lines of .env.local (without showing values):"
+          grep -v "^$" .env.local | cut -d= -f1 | sort
+          cat .env.local | sed 's/=.*/=***/'
+          
+      - name: Build with environment variables
+        run: |
+          echo "Building with Next.js..."
+          export MONGODB_URI="$MONGODB_URI"
+          export NEXTAUTH_URL="$NEXTAUTH_URL"
+          export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
+          export ADMIN_INVITE_CODE="$ADMIN_INVITE_CODE"
+          export TEACHER_INVITE_CODE="$TEACHER_INVITE_CODE"
+          export CLOUDINARY_CLOUD_NAME="$CLOUDINARY_CLOUD_NAME"
+          export CLOUDINARY_API_KEY="$CLOUDINARY_API_KEY"
+          export CLOUDINARY_API_SECRET="$CLOUDINARY_API_SECRET"
+          export NEXT_PHASE="phase-production-build"
+          npm run build
       
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25

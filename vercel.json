@@ -5,15 +5,5 @@
       "src": "next.config.mjs",
       "use": "@vercel/next"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "NEXTAUTH_URL": "@nextauth_url",
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "ADMIN_INVITE_CODE": "@admin_invite_code",
-    "TEACHER_INVITE_CODE": "@teacher_invite_code",
-    "CLOUDINARY_CLOUD_NAME": "@cloudinary_cloud_name",
-    "CLOUDINARY_API_KEY": "@cloudinary_api_key",
-    "CLOUDINARY_API_SECRET": "@cloudinary_api_secret"
-  }
+  ]
 } 

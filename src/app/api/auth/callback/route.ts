@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose';
 import { User } from '@/lib/models';
 
+// Skip actual DB connection during build
+const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -11,6 +14,16 @@ export async function GET(request: Request) {
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    // During build phase, return mock data
+    if (isBuildPhase) {
+      console.log('Build phase detected, skipping DB connection');
+      return NextResponse.json({ 
+        email, 
+        name: 'Build User',
+        role: 'student' 
+      });
     }
 
     // Connect to MongoDB

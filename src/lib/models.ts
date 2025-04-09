@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import { UserRole } from '@/types';
 
+// Check if we are in the build phase
+const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+
 // User Schema
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -131,11 +134,14 @@ if (process.env.NODE_ENV === 'development') {
   delete mongoose.models.Badge;
 }
 
-// Only create the model if it hasn't been created already
-export const User = mongoose.models.User || mongoose.model('User', userSchema);
-export const Badge = mongoose.model('Badge', badgeSchema);  // Force recreation of Badge model
-export const Submission = mongoose.models.Submission || mongoose.model('Submission', submissionSchema);
-export const Pathway = mongoose.models.Pathway || mongoose.model('Pathway', pathwaySchema);
-export const Classroom = mongoose.models.Classroom || mongoose.model('Classroom', classroomSchema);
-export const EarnedBadge = mongoose.models.EarnedBadge || mongoose.model('EarnedBadge', earnedBadgeSchema);
-export const Category = mongoose.models.Category || mongoose.model('Category', categorySchema); 
+// Mock models for build phase
+const mockObj = {};
+
+// Conditionally export models based on build phase
+export const User = isBuildPhase ? mockObj : (mongoose.models.User || mongoose.model('User', userSchema));
+export const Badge = isBuildPhase ? mockObj : mongoose.model('Badge', badgeSchema);
+export const Submission = isBuildPhase ? mockObj : (mongoose.models.Submission || mongoose.model('Submission', submissionSchema));
+export const Pathway = isBuildPhase ? mockObj : (mongoose.models.Pathway || mongoose.model('Pathway', pathwaySchema));
+export const Classroom = isBuildPhase ? mockObj : (mongoose.models.Classroom || mongoose.model('Classroom', classroomSchema));
+export const EarnedBadge = isBuildPhase ? mockObj : (mongoose.models.EarnedBadge || mongoose.model('EarnedBadge', earnedBadgeSchema));
+export const Category = isBuildPhase ? mockObj : (mongoose.models.Category || mongoose.model('Category', categorySchema)); 

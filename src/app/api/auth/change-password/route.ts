@@ -1,3 +1,6 @@
+// Mark this route as dynamic to ensure it's not statically optimized
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';

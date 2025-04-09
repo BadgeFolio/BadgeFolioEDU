@@ -6,10 +6,6 @@ const nextConfig = {
   },
   // Disable static exports since we're using server-side features
   output: 'standalone',
-  // Enable server-side features
-  experimental: {
-    serverActions: true,
-  },
   // Ensure dynamic routes are handled correctly
   webpack: (config) => {
     config.resolve.fallback = {

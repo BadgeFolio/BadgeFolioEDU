@@ -5,6 +5,9 @@ import dbConnect from '@/lib/mongoose';
 import { User } from '@/lib/models';
 import bcrypt from 'bcryptjs';
 
+// Check if we are in the build phase
+const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+
 // Extend the built-in types
 declare module 'next-auth' {
   interface User {
@@ -31,12 +34,15 @@ declare module 'next-auth/jwt' {
   }
 }
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error('Please provide process.env.NEXTAUTH_SECRET');
-}
+// Only check environment variables when not in build phase
+if (!isBuildPhase) {
+  if (!process.env.NEXTAUTH_SECRET) {
+    throw new Error('Please provide process.env.NEXTAUTH_SECRET');
+  }
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Please provide process.env.MONGODB_URI');
+  if (!process.env.MONGODB_URI) {
+    throw new Error('Please provide process.env.MONGODB_URI');
+  }
 }
 
 export const authOptions: NextAuthOptions = {
@@ -52,9 +58,26 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Please enter your email and password');
         }
 
+        // During build phase, return mock data to avoid database queries
+        if (isBuildPhase) {
+          console.log('Build phase detected in auth.ts, returning mock user');
+          return {
+            id: 'mock-id',
+            email: credentials.email,
+            name: 'Mock User',
+            role: 'student',
+            image: null
+          };
+        }
+
         try {
           await dbConnect();
           console.log('Looking for user with email:', credentials.email);
+          
+          // Ensure User is a Mongoose model with findOne method
+          if (typeof User.findOne !== 'function') {
+            throw new Error('User model not initialized properly');
+          }
           
           const user = await User.findOne({ email: credentials.email });
           
@@ -106,5 +129,5 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || (isBuildPhase ? 'build-phase-secret' : undefined),
 }; 

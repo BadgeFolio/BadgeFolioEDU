@@ -1,4 +1,4 @@
-// Make this route dynamic
+// Mark this route as dynamic to ensure it's not statically optimized
 export const dynamic = 'force-dynamic';
 
 import { NextAuthOptions } from 'next-auth';

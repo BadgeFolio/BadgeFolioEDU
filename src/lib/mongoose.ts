@@ -1,20 +1,23 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+// Try to get MongoDB URI from different sources with a fallback for build environment
+const MONGODB_URI = process.env.MONGODB_URI || 
+  (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build' 
+    ? 'mongodb://placeholder-for-build:27017/placeholder-db' 
+    : '');
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
-}
-
+// Interface for global mongoose cache
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
 }
 
+// Add to global TypeScript definitions
 declare global {
   var mongoose: MongooseCache | undefined;
 }
 
+// Initialize the cached connection
 let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 if (!global.mongoose) {
@@ -22,8 +25,29 @@ if (!global.mongoose) {
 }
 
 async function dbConnect() {
+  // If connection exists, return it
   if (cached.conn) {
     return cached.conn;
+  }
+
+  // For next.js build process, just return mongoose without connecting
+  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
+    console.warn('MongoDB URI not needed during build phase. Skipping connection.');
+    return mongoose;
+  }
+
+  // Check if we have a MongoDB URI
+  if (!MONGODB_URI) {
+    console.error('MongoDB URI is not defined! Check your environment variables.');
+    if (process.env.NODE_ENV !== 'production') {
+      throw new Error(
+        'Please define the MONGODB_URI environment variable inside .env.local'
+      );
+    } else {
+      // In production but not build phase, log but don't crash
+      console.warn('Missing MongoDB URI in production. Some features may not work.');
+      return mongoose;
+    }
   }
 
   if (!cached.promise) {
@@ -35,15 +59,19 @@ async function dbConnect() {
       family: 4
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI as string, opts)
-      .then((mongoose) => {
-        console.log('MongoDB connected successfully');
-        return mongoose;
-      })
-      .catch((err) => {
-        console.error('MongoDB connection error:', err);
-        throw err;
-      });
+    try {
+      console.log('Connecting to MongoDB...');
+      cached.promise = mongoose.connect(MONGODB_URI, opts)
+        .then((mongoose) => {
+          console.log('MongoDB connected successfully');
+          return mongoose;
+        });
+    } catch (err) {
+      console.error('MongoDB connection error:', err);
+      // Reset promise so connection can be retried
+      cached.promise = null;
+      throw err;
+    }
   }
 
   try {
