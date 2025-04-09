@@ -2,6 +2,14 @@
  * Helper functions and constants for environment variable handling
  */
 
+// Ensure environment variables are loaded
+import * as dotenv from 'dotenv';
+
+// In local development, load from .env.local
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: '.env.local' });
+}
+
 /**
  * Detects if we're in build/static generation phase
  * Used to conditionally skip DB connections and provide mock values
@@ -29,6 +37,7 @@ export function getEnvVariable(key: string, defaultValue?: string): string {
       return 'build-phase-secret';
     }
     
+    console.error(`Environment variable ${key} is missing`);
     throw new Error(`Please provide process.env.${key}`);
   }
   

@@ -5,6 +5,21 @@
  * Run with: ts-node src/lib/test-env.ts
  */
 
+// Import dotenv to load environment variables
+import * as dotenv from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Load environment variables from .env.local
+const envPath = path.resolve(process.cwd(), '.env.local');
+if (fs.existsSync(envPath)) {
+  console.log(`Loading environment from: ${envPath}`);
+  dotenv.config({ path: envPath });
+} else {
+  console.log('No .env.local file found!');
+  dotenv.config(); // Try default .env
+}
+
 const ENV_VARS_TO_CHECK = [
   'MONGODB_URI',
   'NEXTAUTH_SECRET',
@@ -13,7 +28,12 @@ const ENV_VARS_TO_CHECK = [
   'VERCEL_ENV',
   'VERCEL_BUILD_STEP',
   'NODE_ENV',
-  'NEXT_PHASE'
+  'NEXT_PHASE',
+  'ADMIN_INVITE_CODE',
+  'TEACHER_INVITE_CODE',
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET'
 ];
 
 function testEnvVars() {
@@ -28,7 +48,7 @@ function testEnvVars() {
     let displayValue = value;
     
     // Mask sensitive values
-    if (varName.includes('SECRET') || varName.includes('URI')) {
+    if (varName.includes('SECRET') || varName.includes('URI') || varName.includes('KEY')) {
       displayValue = value ? `${value.substring(0, 8)}...` : 'undefined';
     }
     

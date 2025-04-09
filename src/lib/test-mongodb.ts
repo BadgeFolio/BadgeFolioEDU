@@ -1,47 +1,82 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+/**
+ * MongoDB connection test utility
+ * 
+ * Use this script to test the MongoDB connection with your current environment
+ * Run with: npm run test-mongodb
+ */
+
+// First load environment variables
+import * as dotenv from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Load environment variables from .env.local
-dotenv.config({ path: '.env.local' });
-
-interface Collection {
-  name: string;
+const envPath = path.resolve(process.cwd(), '.env.local');
+if (fs.existsSync(envPath)) {
+  console.log(`Loading environment from: ${envPath}`);
+  dotenv.config({ path: envPath });
+} else {
+  console.log('No .env.local file found!');
+  dotenv.config(); // Try default .env
 }
 
-async function testConnection() {
+// Import after environment variables are loaded
+import mongoose from 'mongoose';
+import { env } from './env';
+
+async function testMongoDBConnection() {
+  console.log('MongoDB Connection Test');
+  console.log('======================');
+  
+  const mongoUri = process.env.MONGODB_URI || env.MONGODB_URI;
+  console.log(`MongoDB URI defined: ${!!mongoUri}`);
+  console.log(`URI starts with: ${mongoUri ? mongoUri.substring(0, 20) + '...' : 'undefined'}`);
+  
+  console.log('\nAttempting to connect...');
+  
   try {
-    const MONGODB_URI = process.env.MONGODB_URI;
+    // Connect to MongoDB
+    await mongoose.connect(mongoUri);
+    console.log('✅ Connection successful!');
     
-    if (!MONGODB_URI) {
-      console.error('MONGODB_URI is not defined in environment variables');
-      process.exit(1);
-    }
-
-    console.log('Attempting to connect to MongoDB...');
-    
-    const connection = await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    });
-
-    console.log('Successfully connected to MongoDB!');
-    
-    // List all collections to verify access
+    // Check database connection
     if (mongoose.connection.db) {
+      console.log('\nListing collections:');
       const collections = await mongoose.connection.db.listCollections().toArray();
-      console.log('Available collections:', collections.map((c: Collection) => c.name));
+      
+      if (collections.length === 0) {
+        console.log('- No collections found (database may be empty)');
+      } else {
+        collections.forEach(collection => {
+          console.log(`- ${collection.name}`);
+        });
+      }
     } else {
-      console.log('No database connection available');
+      console.log('❌ Database connection not available');
     }
-
-    // Close the connection
-    await mongoose.connection.close();
-    console.log('Connection closed successfully');
-    
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    process.exit(1);
+    console.error('❌ Connection failed:', error);
+  } finally {
+    // Close the connection
+    if (mongoose.connection.readyState !== 0) {
+      console.log('\nClosing connection...');
+      await mongoose.connection.close();
+      console.log('Connection closed');
+    }
   }
 }
 
-testConnection(); 
+// Run if executed directly
+if (require.main === module) {
+  testMongoDBConnection()
+    .then(() => {
+      console.log('\nTest complete');
+      process.exit(0);
+    })
+    .catch(err => {
+      console.error('Test failed with error:', err);
+      process.exit(1);
+    });
+}
+
+export default testMongoDBConnection; 
