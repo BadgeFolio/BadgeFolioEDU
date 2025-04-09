@@ -9,6 +9,14 @@ const nextConfig = {
   // Enable server-side features
   experimental: {
     serverActions: true,
+  },
+  // Ensure dynamic routes are handled correctly
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+    };
+    return config;
   }
 };
 

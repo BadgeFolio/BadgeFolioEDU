@@ -1,3 +1,6 @@
+// Make this route dynamic
+export const dynamic = 'force-dynamic';
+
 import { NextAuthOptions } from 'next-auth';
 import NextAuth from 'next-auth/next';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -9,7 +12,6 @@ import { DefaultSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
 // Add dynamic configuration
-export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 // Extend the built-in types
