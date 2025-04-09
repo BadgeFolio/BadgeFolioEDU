@@ -4,47 +4,96 @@ import { UserRole } from '@/types';
 // Check if we are in the build phase
 const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
 
-// Mock Mongoose model that implements common methods used in the codebase
-const createMockModel = () => {
-  // Create a mock model with common Mongoose methods
+// Mock object that implements chainable methods
+type ChainableMethod = (...args: any[]) => MockQuery;
+
+interface MockQuery extends Promise<any> {
+  lean: ChainableMethod;
+  select: ChainableMethod;
+  populate: ChainableMethod;
+  sort: ChainableMethod;
+  limit: ChainableMethod;
+  skip: ChainableMethod;
+  where: ChainableMethod;
+  equals: ChainableMethod;
+  gt: ChainableMethod;
+  gte: ChainableMethod;
+  lt: ChainableMethod;
+  lte: ChainableMethod;
+  in: ChainableMethod;
+  exec: () => Promise<any>;
+}
+
+// Create a chainable mock query
+function createMockQuery(returnValue: any = {}): MockQuery {
+  const query = Promise.resolve(returnValue) as any;
+  
+  // Add chainable methods that return the query itself for proper chaining
+  query.lean = () => query;
+  query.select = () => query;
+  query.populate = () => query;
+  query.sort = () => query;
+  query.limit = () => query;
+  query.skip = () => query;
+  query.where = () => query;
+  query.equals = () => query;
+  query.gt = () => query;
+  query.gte = () => query;
+  query.lt = () => query;
+  query.lte = () => query;
+  query.in = () => query;
+  query.exec = () => Promise.resolve(returnValue);
+  
+  return query;
+}
+
+// Create mock model
+export function createMockModel(modelName: string): any {
   return {
-    findById: () => ({
-      select: () => ({
-        lean: () => ({})
-      }),
-      lean: () => ({}),
-      populate: () => ({
-        lean: () => ({})
-      })
-    }),
-    findOne: () => Promise.resolve({}),
-    find: () => ({
-      sort: () => ({
-        limit: () => ({
-          lean: () => Promise.resolve([])
-        }),
-        lean: () => Promise.resolve([])
-      }),
-      lean: () => Promise.resolve([]),
-      exec: () => Promise.resolve([])
-    }),
-    create: () => Promise.resolve({}),
-    updateOne: () => Promise.resolve({ modifiedCount: 1 }),
-    updateMany: () => Promise.resolve({ modifiedCount: 1 }),
-    deleteOne: () => Promise.resolve({ deletedCount: 1 }),
-    deleteMany: () => Promise.resolve({ deletedCount: 1 }),
-    countDocuments: () => Promise.resolve(0),
-    aggregate: () => Promise.resolve([]),
-    distinct: () => Promise.resolve([]),
-    exists: () => Promise.resolve(false),
-    populate: () => Promise.resolve({}),
-    // Support plugin methods
-    paginate: () => Promise.resolve({ docs: [], totalDocs: 0, limit: 10, page: 1, totalPages: 0 }),
-    // Add support for static methods
-    mapReduce: () => Promise.resolve([]),
-    bulkWrite: () => Promise.resolve({})
+    modelName,
+    findById: (id: string) => {
+      if (modelName === 'Badge' && id === 'test123') {
+        return createMockQuery(mockBadge);
+      }
+      if (modelName === 'Category' && id === 'category123') {
+        return createMockQuery(mockCategory);
+      }
+      return createMockQuery(null);
+    },
+    findOne: (query: any) => {
+      if (modelName === 'Badge' && query.name === 'Test Badge') {
+        return createMockQuery(mockBadge);
+      }
+      if (modelName === 'Category' && query.name === 'Test Category') {
+        return createMockQuery(mockCategory);
+      }
+      return createMockQuery(null);
+    },
+    find: (query: any = {}) => {
+      if (modelName === 'Badge') {
+        return createMockQuery([mockBadge]);
+      }
+      if (modelName === 'Category') {
+        return createMockQuery([mockCategory]);
+      }
+      return createMockQuery([]);
+    },
+    findByIdAndUpdate: (id: string, data: any) => {
+      if (modelName === 'Badge' && id === 'test123') {
+        const updated = { ...mockBadge, ...data };
+        return createMockQuery(updated);
+      }
+      return createMockQuery(null);
+    },
+    findByIdAndDelete: (id: string) => {
+      return createMockQuery({ acknowledged: true });
+    },
+    countDocuments: () => createMockQuery(1),
+    create: (data: any) => Promise.resolve({ ...data, _id: 'new123' }),
+    updateOne: () => Promise.resolve({ acknowledged: true, modifiedCount: 1 }),
+    deleteOne: () => Promise.resolve({ acknowledged: true, deletedCount: 1 })
   };
-};
+}
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -170,6 +219,28 @@ const categorySchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+// Mock data for testing
+const mockCategory = {
+  _id: 'category123',
+  name: 'Test Category',
+  description: 'This is a test category',
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
+const mockBadge = {
+  _id: 'test123',
+  name: 'Test Badge',
+  description: 'This is a test badge',
+  category: 'Test Category',
+  criteria: ['Sample criteria'],
+  difficulty: 1,
+  isPublic: true,
+  creatorId: { _id: 'user123', email: 'test@example.com', name: 'Test User' },
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
 // Delete existing models if they exist (for development only)
 if (process.env.NODE_ENV === 'development') {
   // Delete the Badge model if it exists
@@ -177,10 +248,10 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Conditionally export models based on build phase
-export const User = isBuildPhase ? createMockModel() : (mongoose.models.User || mongoose.model('User', userSchema));
-export const Badge = isBuildPhase ? createMockModel() : mongoose.model('Badge', badgeSchema);
-export const Submission = isBuildPhase ? createMockModel() : (mongoose.models.Submission || mongoose.model('Submission', submissionSchema));
-export const Pathway = isBuildPhase ? createMockModel() : (mongoose.models.Pathway || mongoose.model('Pathway', pathwaySchema));
-export const Classroom = isBuildPhase ? createMockModel() : (mongoose.models.Classroom || mongoose.model('Classroom', classroomSchema));
-export const EarnedBadge = isBuildPhase ? createMockModel() : (mongoose.models.EarnedBadge || mongoose.model('EarnedBadge', earnedBadgeSchema));
-export const Category = isBuildPhase ? createMockModel() : (mongoose.models.Category || mongoose.model('Category', categorySchema)); 
+export const User = isBuildPhase ? createMockModel('User') : (mongoose.models.User || mongoose.model('User', userSchema));
+export const Badge = isBuildPhase ? createMockModel('Badge') : mongoose.model('Badge', badgeSchema);
+export const Submission = isBuildPhase ? createMockModel('Submission') : (mongoose.models.Submission || mongoose.model('Submission', submissionSchema));
+export const Pathway = isBuildPhase ? createMockModel('Pathway') : (mongoose.models.Pathway || mongoose.model('Pathway', pathwaySchema));
+export const Classroom = isBuildPhase ? createMockModel('Classroom') : (mongoose.models.Classroom || mongoose.model('Classroom', classroomSchema));
+export const EarnedBadge = isBuildPhase ? createMockModel('EarnedBadge') : (mongoose.models.EarnedBadge || mongoose.model('EarnedBadge', earnedBadgeSchema));
+export const Category = isBuildPhase ? createMockModel('Category') : (mongoose.models.Category || mongoose.model('Category', categorySchema)); 

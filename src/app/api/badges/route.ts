@@ -242,7 +242,7 @@ export async function GET(request: Request) {
 
     // Get all categories for lookup
     const categories = await Category.find({}).lean();
-    const categoryMap = new Map(categories.map(cat => [cat.name, cat]));
+    const categoryMap = new Map(categories.map((cat: any) => [cat.name, cat]));
 
     // Format badges to include both id and _id
     const formattedBadges = badges.map((badge: any) => {

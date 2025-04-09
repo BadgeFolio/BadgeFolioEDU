@@ -36,7 +36,7 @@ export async function GET() {
 
     // Filter out any earned badges with missing badge or student data
     const validEarnedBadges = earnedBadges.filter(
-      badge => badge.badge && badge.student && badge.badge.name && badge.student.name
+      (badge: any) => badge.badge && badge.student && badge.badge.name && badge.student.name
     );
 
     if (validEarnedBadges.length === 0) {

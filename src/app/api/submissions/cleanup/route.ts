@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
     // Delete the old submissions
     const result = await Submission.deleteMany({
-      _id: { $in: oldSubmissions.map(s => s._id) }
+      _id: { $in: oldSubmissions.map((s: any) => s._id) }
     });
 
     return NextResponse.json({

@@ -179,7 +179,7 @@ export async function PUT(request: Request) {
         // List all badges with old category for debugging
         if (oldCategoryRemainingCount > 0) {
           const remainingBadges = await Badge.find({ category: previousCategory.name });
-          console.log('Badges still with old category:', remainingBadges.map(b => ({ id: b._id, name: b.name })));
+          console.log('Badges still with old category:', remainingBadges.map((b: any) => ({ id: b._id, name: b.name })));
         }
         
         // If there are still badges with old category, try a second approach
