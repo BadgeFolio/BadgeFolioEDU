@@ -282,12 +282,20 @@ export default function CommunityWallPage() {
                             </h2>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
                               {event.type === 'earned' 
-                                ? `Earned by ${(event.item as EarnedBadge).student.name}` 
-                                : `Published by ${(event.item as PublishedBadge).creatorId.name}`}
-                              {' · '}{new Date(event.timestamp).toLocaleDateString()}
+                                ? <>Earned by <span className="font-medium">{(event.item as EarnedBadge).student.name}</span> <span className="inline-block px-1.5 py-0.5 text-xs rounded bg-gray-100 dark:bg-gray-700">STUDENT</span></>
+                                : <>Published by <span className="font-medium">{(event.item as PublishedBadge).creatorId.name}</span> <span className="inline-block px-1.5 py-0.5 text-xs rounded bg-gray-100 dark:bg-gray-700">TEACHER</span></>}
+                              {' · '}{new Date(event.timestamp).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
                             </p>
                           </div>
-                          <div className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            event.type === 'earned' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          }`}>
                             {event.type === 'earned' ? 'Badge Earned' : 'New Badge'}
                           </div>
                         </div>
