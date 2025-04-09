@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 // Check if we're in the build/static generation phase
 const isBuildPhase = process.env.NODE_ENV === 'production' && 
@@ -44,9 +44,41 @@ if (isBuildPhase) {
 }
 
 export async function connectToDatabase() {
-  // For build/static generation, return a mock DB
+  // For build/static generation, return a mock DB with all commonly used methods
   if (isBuildPhase) {
-    return { collection: () => ({ find: () => ({ toArray: () => Promise.resolve([]) }) }) };
+    console.warn('Build phase detected in db.ts - Using mock database');
+    // Create a comprehensive mock implementation for all MongoDB methods
+    const mockCollection = {
+      find: () => ({ 
+        toArray: () => Promise.resolve([]),
+        sort: () => ({ 
+          limit: () => ({ toArray: () => Promise.resolve([]) }),
+          skip: () => ({ 
+            limit: () => ({ toArray: () => Promise.resolve([]) }) 
+          }),
+          toArray: () => Promise.resolve([])
+        })
+      }),
+      findOne: () => Promise.resolve(null),
+      findOneAndUpdate: () => Promise.resolve(null),
+      findOneAndDelete: () => Promise.resolve(null),
+      updateOne: () => Promise.resolve({ modifiedCount: 0, matchedCount: 0 }),
+      updateMany: () => Promise.resolve({ modifiedCount: 0, matchedCount: 0 }),
+      deleteOne: () => Promise.resolve({ deletedCount: 0 }),
+      deleteMany: () => Promise.resolve({ deletedCount: 0 }),
+      insertOne: () => Promise.resolve({ insertedId: new ObjectId() }),
+      insertMany: () => Promise.resolve({ insertedIds: [], insertedCount: 0 }),
+      count: () => Promise.resolve(0),
+      countDocuments: () => Promise.resolve(0),
+      aggregate: () => ({
+        toArray: () => Promise.resolve([])
+      }),
+      distinct: () => Promise.resolve([]),
+    };
+
+    return {
+      collection: () => mockCollection
+    };
   }
 
   const client = await clientPromise;

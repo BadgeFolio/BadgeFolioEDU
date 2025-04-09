@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 // Check if we're in the build/static generation phase
 const isBuildPhase = process.env.NODE_ENV === 'production' && 
@@ -25,10 +25,59 @@ let clientPromise: Promise<MongoClient>;
 
 // Skip actual connection during build
 if (isBuildPhase) {
+  console.warn('Build phase detected in mongodb.ts - Using mock client');
+  
+  // Create a comprehensive mock collection
+  const mockCollection = {
+    find: () => ({ 
+      toArray: () => Promise.resolve([]),
+      sort: () => ({ 
+        limit: () => ({ toArray: () => Promise.resolve([]) }),
+        skip: () => ({ limit: () => ({ toArray: () => Promise.resolve([]) }) }),
+        toArray: () => Promise.resolve([])
+      })
+    }),
+    findOne: () => Promise.resolve(null),
+    findOneAndUpdate: () => Promise.resolve(null),
+    findOneAndDelete: () => Promise.resolve(null),
+    updateOne: () => Promise.resolve({ modifiedCount: 0, matchedCount: 0 }),
+    updateMany: () => Promise.resolve({ modifiedCount: 0, matchedCount: 0 }),
+    deleteOne: () => Promise.resolve({ deletedCount: 0 }),
+    deleteMany: () => Promise.resolve({ deletedCount: 0 }),
+    insertOne: () => Promise.resolve({ insertedId: new ObjectId() }),
+    insertMany: () => Promise.resolve({ insertedIds: [], insertedCount: 0 }),
+    count: () => Promise.resolve(0),
+    countDocuments: () => Promise.resolve(0),
+    aggregate: () => ({
+      toArray: () => Promise.resolve([])
+    }),
+    distinct: () => Promise.resolve([]),
+  };
+  
+  // Mock db function that returns our mockCollection for any collection name
+  const mockDb = {
+    collection: () => mockCollection,
+    // Add other db methods as needed
+    command: () => Promise.resolve({}),
+    admin: () => ({
+      listDatabases: () => Promise.resolve({ databases: [] }),
+      serverStatus: () => Promise.resolve({})
+    }),
+  };
+  
+  // Create a mock client with a db method that returns our mockDb
+  const mockClient = {
+    db: () => mockDb,
+    // Add other client methods as needed
+    connect: () => Promise.resolve(mockClient),
+    close: () => Promise.resolve(),
+    isConnected: () => true,
+  } as unknown as MongoClient;
+  
   // @ts-ignore - Provide a dummy client for build
-  client = {} as MongoClient;
+  client = mockClient;
   // @ts-ignore - Provide a dummy promise for build
-  clientPromise = Promise.resolve({} as MongoClient);
+  clientPromise = Promise.resolve(mockClient);
 } else if (process.env.NODE_ENV === 'development') {
   // In development mode, use a global variable so that the value
   // is preserved across module reloads caused by HMR (Hot Module Replacement).
