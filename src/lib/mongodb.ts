@@ -1,19 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb';
+import { isBuildPhase, env } from '@/lib/env';
 
-// Check if we're in the build/static generation phase
-const isBuildPhase = process.env.NODE_ENV === 'production' && 
-  (process.env.NEXT_PHASE === 'phase-production-build' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'production');
-
-// Only throw in development, not in production build
-if (!process.env.MONGODB_URI && !isBuildPhase) {
-  if (process.env.NODE_ENV === 'development') {
-    throw new Error('Please add your Mongo URI to .env.local');
-  } else {
-    console.warn('MongoDB URI is missing in production environment');
-  }
-}
-
-const uri = process.env.MONGODB_URI || 'mongodb://placeholder-for-build:27017/placeholder-db';
 const options = {
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
@@ -86,13 +73,13 @@ if (isBuildPhase) {
   };
 
   if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(uri, options);
+    client = new MongoClient(env.MONGODB_URI, options);
     globalWithMongo._mongoClientPromise = client.connect();
   }
   clientPromise = globalWithMongo._mongoClientPromise;
 } else {
   // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri, options);
+  client = new MongoClient(env.MONGODB_URI, options);
   clientPromise = client.connect();
 }
 

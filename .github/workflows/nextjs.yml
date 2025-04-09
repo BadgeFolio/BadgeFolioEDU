@@ -66,6 +66,13 @@ jobs:
           echo "First few lines of .env.local (without showing values):"
           grep -v "^$" .env.local | cut -d= -f1 | sort
           cat .env.local | sed 's/=.*/=***/'
+      
+      - name: Check environment variables
+        run: |
+          echo "Checking environment variables..."
+          echo "MONGODB_URI defined: $(if [ -n \"$MONGODB_URI\" ]; then echo 'yes'; else echo 'no'; fi)"
+          echo "NEXTAUTH_SECRET defined: $(if [ -n \"$NEXTAUTH_SECRET\" ]; then echo 'yes'; else echo 'no'; fi)"
+          echo "NEXTAUTH_URL defined: $(if [ -n \"$NEXTAUTH_URL\" ]; then echo 'yes'; else echo 'no'; fi)"
           
       - name: Build with environment variables
         run: |

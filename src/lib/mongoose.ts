@@ -1,12 +1,5 @@
 import mongoose from 'mongoose';
-
-// Better detection of build/static generation phases
-const isBuildPhase = process.env.NODE_ENV === 'production' && 
-  (process.env.NEXT_PHASE === 'phase-production-build' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'production');
-
-// Try to get MongoDB URI from different sources with a fallback for build environment
-const MONGODB_URI = process.env.MONGODB_URI || 
-  (isBuildPhase ? 'mongodb://placeholder-for-build:27017/placeholder-db' : '');
+import { isBuildPhase, env } from '@/lib/env';
 
 // Interface for global mongoose cache
 interface MongooseCache {
@@ -38,19 +31,9 @@ async function dbConnect() {
     return mongoose;
   }
 
-  // Check if we have a MongoDB URI
-  if (!MONGODB_URI) {
-    console.error('MongoDB URI is not defined! Check your environment variables.');
-    if (process.env.NODE_ENV === 'development') {
-      throw new Error(
-        'Please add your Mongo URI to .env.local'
-      );
-    } else {
-      // In production but not build phase, log but don't crash
-      console.warn('Missing MongoDB URI in production environment. Some features may not work.');
-      return mongoose;
-    }
-  }
+  const mongoUri = env.MONGODB_URI;
+  console.log(`MongoDB URI defined: ${!!mongoUri} (${mongoUri ? mongoUri.substring(0, 15) + '...' : 'undefined'})`);
+  console.log(`Environment: ${process.env.NODE_ENV}, Vercel: ${process.env.VERCEL ? 'Yes' : 'No'}`);
 
   // If not in build phase and we have a MongoDB URI, connect
   if (!cached.promise) {
@@ -63,14 +46,19 @@ async function dbConnect() {
     };
 
     try {
-      console.log('Connecting to MongoDB...');
-      cached.promise = mongoose.connect(MONGODB_URI, opts)
+      console.log('Attempting to connect to MongoDB...');
+      cached.promise = mongoose.connect(mongoUri, opts)
         .then((mongoose) => {
           console.log('MongoDB connected successfully');
           return mongoose;
+        })
+        .catch((err) => {
+          console.error('MongoDB connection promise error:', err);
+          cached.promise = null;
+          throw err;
         });
     } catch (err) {
-      console.error('MongoDB connection error:', err);
+      console.error('MongoDB connection initialization error:', err);
       // Reset promise so connection can be retried
       cached.promise = null;
       throw err;
@@ -79,9 +67,10 @@ async function dbConnect() {
 
   try {
     cached.conn = await cached.promise;
+    console.log('MongoDB connection established and cached');
   } catch (e) {
     cached.promise = null;
-    console.error('MongoDB connection failed:', e);
+    console.error('MongoDB await connection failed:', e);
     throw e;
   }
 

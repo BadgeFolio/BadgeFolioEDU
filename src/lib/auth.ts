@@ -4,9 +4,7 @@ import { DefaultSession } from 'next-auth';
 import dbConnect from '@/lib/mongoose';
 import { User } from '@/lib/models';
 import bcrypt from 'bcryptjs';
-
-// Check if we are in the build phase
-const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+import { isBuildPhase, env } from '@/lib/env';
 
 // Extend the built-in types
 declare module 'next-auth' {
@@ -31,17 +29,6 @@ declare module 'next-auth/jwt' {
     role?: string;
     error?: string;
     requirePasswordChange?: boolean;
-  }
-}
-
-// Only check environment variables when not in build phase
-if (!isBuildPhase) {
-  if (!process.env.NEXTAUTH_SECRET) {
-    throw new Error('Please provide process.env.NEXTAUTH_SECRET');
-  }
-
-  if (!process.env.MONGODB_URI) {
-    throw new Error('Please provide process.env.MONGODB_URI');
   }
 }
 
@@ -124,5 +111,5 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  secret: process.env.NEXTAUTH_SECRET || (isBuildPhase ? 'build-phase-secret' : undefined),
+  secret: env.NEXTAUTH_SECRET,
 }; 

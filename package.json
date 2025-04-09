@@ -9,7 +9,9 @@
     "lint": "next lint",
     "debug-build": "tsc --noEmit && next build",
     "postinstall": "next telemetry disable",
-    "test-mongodb": "ts-node src/lib/test-mongodb.ts"
+    "test-mongodb": "ts-node src/lib/test-mongodb.ts",
+    "test-env": "ts-node src/lib/test-env.ts",
+    "env-check": "ts-node -e \"require('./src/lib/env.ts'); console.log('Environment variables loaded successfully')\""
   },
   "engines": {
     "node": ">=20.0.0"
