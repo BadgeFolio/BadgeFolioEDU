@@ -74,11 +74,6 @@ export const authOptions: NextAuthOptions = {
           await dbConnect();
           console.log('Looking for user with email:', credentials.email);
           
-          // Ensure User is a Mongoose model with findOne method
-          if (typeof User.findOne !== 'function') {
-            throw new Error('User model not initialized properly');
-          }
-          
           const user = await User.findOne({ email: credentials.email });
           
           if (!user) {

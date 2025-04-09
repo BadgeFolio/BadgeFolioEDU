@@ -4,6 +4,48 @@ import { UserRole } from '@/types';
 // Check if we are in the build phase
 const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
 
+// Mock Mongoose model that implements common methods used in the codebase
+const createMockModel = () => {
+  // Create a mock model with common Mongoose methods
+  return {
+    findById: () => ({
+      select: () => ({
+        lean: () => ({})
+      }),
+      lean: () => ({}),
+      populate: () => ({
+        lean: () => ({})
+      })
+    }),
+    findOne: () => Promise.resolve({}),
+    find: () => ({
+      sort: () => ({
+        limit: () => ({
+          lean: () => Promise.resolve([])
+        }),
+        lean: () => Promise.resolve([])
+      }),
+      lean: () => Promise.resolve([]),
+      exec: () => Promise.resolve([])
+    }),
+    create: () => Promise.resolve({}),
+    updateOne: () => Promise.resolve({ modifiedCount: 1 }),
+    updateMany: () => Promise.resolve({ modifiedCount: 1 }),
+    deleteOne: () => Promise.resolve({ deletedCount: 1 }),
+    deleteMany: () => Promise.resolve({ deletedCount: 1 }),
+    countDocuments: () => Promise.resolve(0),
+    aggregate: () => Promise.resolve([]),
+    distinct: () => Promise.resolve([]),
+    exists: () => Promise.resolve(false),
+    populate: () => Promise.resolve({}),
+    // Support plugin methods
+    paginate: () => Promise.resolve({ docs: [], totalDocs: 0, limit: 10, page: 1, totalPages: 0 }),
+    // Add support for static methods
+    mapReduce: () => Promise.resolve([]),
+    bulkWrite: () => Promise.resolve({})
+  };
+};
+
 // User Schema
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -134,14 +176,11 @@ if (process.env.NODE_ENV === 'development') {
   delete mongoose.models.Badge;
 }
 
-// Mock models for build phase
-const mockObj = {};
-
 // Conditionally export models based on build phase
-export const User = isBuildPhase ? mockObj : (mongoose.models.User || mongoose.model('User', userSchema));
-export const Badge = isBuildPhase ? mockObj : mongoose.model('Badge', badgeSchema);
-export const Submission = isBuildPhase ? mockObj : (mongoose.models.Submission || mongoose.model('Submission', submissionSchema));
-export const Pathway = isBuildPhase ? mockObj : (mongoose.models.Pathway || mongoose.model('Pathway', pathwaySchema));
-export const Classroom = isBuildPhase ? mockObj : (mongoose.models.Classroom || mongoose.model('Classroom', classroomSchema));
-export const EarnedBadge = isBuildPhase ? mockObj : (mongoose.models.EarnedBadge || mongoose.model('EarnedBadge', earnedBadgeSchema));
-export const Category = isBuildPhase ? mockObj : (mongoose.models.Category || mongoose.model('Category', categorySchema)); 
+export const User = isBuildPhase ? createMockModel() : (mongoose.models.User || mongoose.model('User', userSchema));
+export const Badge = isBuildPhase ? createMockModel() : mongoose.model('Badge', badgeSchema);
+export const Submission = isBuildPhase ? createMockModel() : (mongoose.models.Submission || mongoose.model('Submission', submissionSchema));
+export const Pathway = isBuildPhase ? createMockModel() : (mongoose.models.Pathway || mongoose.model('Pathway', pathwaySchema));
+export const Classroom = isBuildPhase ? createMockModel() : (mongoose.models.Classroom || mongoose.model('Classroom', classroomSchema));
+export const EarnedBadge = isBuildPhase ? createMockModel() : (mongoose.models.EarnedBadge || mongoose.model('EarnedBadge', earnedBadgeSchema));
+export const Category = isBuildPhase ? createMockModel() : (mongoose.models.Category || mongoose.model('Category', categorySchema)); 
