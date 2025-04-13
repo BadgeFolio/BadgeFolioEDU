@@ -222,7 +222,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                       {isUpdating ? 'Updating...' : badge.isPublic ? 'Make Private' : 'Make Public'}
                     </button>
                     <button
-                      onClick={() => router.push(`/badges/edit/${params.id}`)}
+                      onClick={() => router.push(`/badges/${params.id}/edit`)}
                       className="btn-glass btn-secondary group"
                     >
                       <PencilIcon className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
