@@ -3,7 +3,6 @@ import './globals.css';
 import type { Metadata } from 'next';
 import Providers from '@/components/Providers';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ThemeProvider } from '@/components/ThemeProvider';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -35,14 +34,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} font-sans antialiased`} suppressHydrationWarning>
       <body className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        <ThemeProvider>
-          <Providers>
-            <div className="fixed bottom-4 right-4 z-50">
-              <ThemeToggle />
-            </div>
-            {children}
-          </Providers>
-        </ThemeProvider>
+        <Providers>
+          <div className="fixed bottom-4 right-4 z-50">
+            <ThemeToggle />
+          </div>
+          {children}
+        </Providers>
       </body>
     </html>
   );

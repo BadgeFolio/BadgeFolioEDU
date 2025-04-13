@@ -6,7 +6,7 @@ import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
 
 export function ThemeToggle() {
   const [mounted, setMounted] = React.useState(false);
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   // useEffect only runs on the client, so now we can safely show the UI
   React.useEffect(() => {
@@ -17,28 +17,18 @@ export function ThemeToggle() {
     return null;
   }
 
-  const themes = [
-    { name: 'light', icon: SunIcon, label: 'Light Mode' },
-    { name: 'dark', icon: MoonIcon, label: 'Dark Mode' },
-  ];
-
-  const currentTheme = theme || 'light';
-  const nextTheme = themes[(themes.findIndex(t => t.name === currentTheme) + 1) % themes.length];
-
   return (
     <button
-      aria-label={`Switch to ${nextTheme.label}`}
+      aria-label={resolvedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       type="button"
       className="bg-gray-200 dark:bg-gray-800 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-      onClick={() => setTheme(nextTheme.name)}
+      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
     >
-      {React.createElement(nextTheme.icon, {
-        className: `h-5 w-5 ${
-          nextTheme.name === 'dark' 
-            ? 'text-yellow-500' 
-            : 'text-gray-800'
-        }`
-      })}
+      {resolvedTheme === 'dark' ? (
+        <SunIcon className="h-5 w-5 text-yellow-500" />
+      ) : (
+        <MoonIcon className="h-5 w-5 text-gray-800" />
+      )}
     </button>
   );
 } 
