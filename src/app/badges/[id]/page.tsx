@@ -278,7 +278,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
               )}
               
               <div className="flex-1">
-                <div className="backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 rounded-2xl p-8 shadow-inner border border-white/50 dark:border-gray-700/50">
+                <div className="backdrop-blur-sm bg-white/70 dark:bg-gray-800/40 rounded-2xl p-8 shadow-inner border border-white/50 dark:border-gray-700/50">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center group">
                     <InformationCircleIcon className="h-6 w-6 mr-2 text-primary-500 group-hover:scale-110 transition-transform" />
                     <span className="relative">
@@ -324,7 +324,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                         <span className="w-8 h-0.5 bg-primary-500 mr-2"></span>
                         Created By
                       </h3>
-                      <div className="flex items-center bg-white/50 dark:bg-gray-700/50 rounded-full py-2 px-4 shadow-sm border border-white/50 dark:border-gray-600/50 hover:shadow-md transition-shadow">
+                      <div className="flex items-center bg-white/50 dark:bg-gray-700/30 rounded-full py-2 px-4 shadow-sm border border-white/50 dark:border-gray-600/50 hover:shadow-md transition-shadow">
                         <UserCircleIcon className="h-5 w-5 text-primary-500 mr-2" />
                         <span className="text-gray-900 dark:text-gray-300 font-medium">
                           {badge.creatorId.name || badge.creatorId.email}
@@ -338,7 +338,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                       <span className="w-8 h-0.5 bg-primary-500 mr-2"></span>
                       Criteria to Earn
                     </h3>
-                    <div className="backdrop-blur-md bg-white/60 dark:bg-gray-700/60 rounded-xl p-6 shadow-lg border-l-4 border-primary-500 hover:shadow-xl transition-shadow">
+                    <div className="backdrop-blur-md bg-white/60 dark:bg-gray-700/40 rounded-xl p-6 shadow-lg border-l-4 border-primary-500 hover:shadow-xl transition-shadow">
                       <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{badge.criteria}</p>
                     </div>
                   </div>
@@ -401,7 +401,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                       <TrophyIcon className="h-9 w-9 mr-3 text-primary-600 dark:text-primary-300 float animate-float" />
                       Ready to Earn This Badge?
                     </h3>
-                    <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-xl p-8 shadow-xl border border-white/50 dark:border-gray-700/50 hover:shadow-2xl transition-shadow">
+                    <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-800/40 rounded-xl p-8 shadow-xl border border-white/50 dark:border-gray-700/50 hover:shadow-2xl transition-shadow">
                       <SubmissionForm 
                         badge={{
                           ...badge,
