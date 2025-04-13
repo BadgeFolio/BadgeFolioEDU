@@ -172,7 +172,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto">
-        <div className="relative bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-2xl overflow-hidden sm:rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30">
+        <div className="relative bg-gradient-to-b from-white to-gray-50 dark:from-[#59192b] dark:to-[#4a1424] shadow-2xl overflow-hidden sm:rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30">
           <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10 z-0"></div>
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-400 dark:bg-primary-600 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
           <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-secondary-400 dark:bg-secondary-600 rounded-full filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
