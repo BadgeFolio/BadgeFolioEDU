@@ -172,12 +172,12 @@ export default function BadgePage({ params }: { params: { id: string } }) {
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto">
-        <div className="relative bg-gradient-to-b from-white to-gray-50 dark:from-[#59192b] dark:to-[#4a1424] shadow-2xl overflow-hidden sm:rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30">
+        <div className="relative bg-gradient-to-b from-white to-gray-50 dark:from-[#59192b] dark:to-[#4a1424] dark:bg-[#59192b] shadow-2xl overflow-hidden sm:rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30">
           <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10 z-0"></div>
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-400 dark:bg-primary-600 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-secondary-400 dark:bg-secondary-600 rounded-full filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-400 dark:bg-primary-600 rounded-full filter blur-3xl opacity-20"></div>
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-secondary-400 dark:bg-secondary-600 rounded-full filter blur-3xl opacity-20"></div>
           
-          <div className="relative z-10 px-6 py-6 sm:px-8 sm:pt-8">
+          <div className="relative z-10 px-6 py-6 sm:px-8 sm:pt-8 bg-transparent dark:bg-transparent">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -355,7 +355,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                   <div className="backdrop-blur-md bg-green-50/90 dark:bg-green-900/30 p-8 rounded-2xl shadow-lg border border-green-200/50 dark:border-green-700/30">
                     <div className="flex flex-col md:flex-row items-center gap-6">
                       <div className="flex-shrink-0 bg-gradient-to-br from-green-400 to-green-600 dark:from-green-500 dark:to-green-700 p-5 rounded-full shadow-lg">
-                        <CheckCircleIcon className="h-12 w-12 text-white drop-shadow-md animate-pulse" style={{animationDuration: '3s'}} />
+                        <CheckCircleIcon className="h-12 w-12 text-white drop-shadow-md" />
                       </div>
                       <div className="text-center md:text-left">
                         <h3 className="text-2xl font-bold text-green-800 dark:text-green-100 mb-2">
@@ -377,7 +377,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                   <div className="backdrop-blur-md bg-yellow-50/90 dark:bg-yellow-900/30 p-8 rounded-2xl shadow-lg border border-yellow-200/50 dark:border-yellow-700/30">
                     <div className="flex flex-col md:flex-row items-center gap-6">
                       <div className="flex-shrink-0 bg-gradient-to-br from-yellow-400 to-yellow-600 dark:from-yellow-500 dark:to-yellow-700 p-5 rounded-full shadow-lg">
-                        <ClockIcon className="h-12 w-12 text-white drop-shadow-md animate-spin" style={{animationDuration: '10s'}} />
+                        <ClockIcon className="h-12 w-12 text-white drop-shadow-md" />
                       </div>
                       <div className="text-center md:text-left">
                         <h3 className="text-2xl font-bold text-yellow-800 dark:text-yellow-100 mb-2">
@@ -398,7 +398,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                 ) : (
                   <div className="backdrop-blur-md bg-primary-50/90 dark:bg-primary-900/30 p-8 rounded-2xl shadow-lg border border-primary-200/50 dark:border-primary-700/30">
                     <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-300 dark:to-primary-100 mb-6 flex items-center">
-                      <TrophyIcon className="h-9 w-9 mr-3 text-primary-600 dark:text-primary-300 float animate-float" />
+                      <TrophyIcon className="h-9 w-9 mr-3 text-primary-600 dark:text-primary-300" />
                       Ready to Earn This Badge?
                     </h3>
                     <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-800/40 rounded-xl p-8 shadow-xl border border-white/50 dark:border-gray-700/50 hover:shadow-2xl transition-shadow">

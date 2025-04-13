@@ -161,6 +161,11 @@
   background-color: transparent !important;
 }
 
+/* Badge page background color for dark mode */
+.dark .max-w-7xl > .relative.bg-gradient-to-b {
+  background-color: #59192b !important;
+}
+
 /* Share portfolio button should be red in both modes */
 .bg-blue-500,
 .bg-blue-600,
@@ -175,9 +180,17 @@
 }
 
 /* Remove animations and transitions */
-.hover-scale {
+.hover-scale, 
+.hover-wiggle, 
+.animate-pulse, 
+.transition-all,
+.transition-colors,
+.transition-transform,
+.transition-opacity,
+.transition-shadow {
   transform: none !important;
   transition: none !important;
+  animation: none !important;
 }
 
 /* Custom scrollbar */
