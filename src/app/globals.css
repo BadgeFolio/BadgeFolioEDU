@@ -86,7 +86,12 @@
 }
 
 .dark .bg-white {
-  background-color: #4a1424 !important;
+  background-color: transparent !important;
+}
+
+.dark .bg-gray-800 {
+  background-color: rgba(74, 20, 36, 0.6) !important;
+  backdrop-filter: blur(8px);
 }
 
 .dark .text-gray-900 {
@@ -120,23 +125,40 @@
 .dark .bg-gray-50,
 .dark .bg-blue-50,
 .dark .bg-gradient-to-b.from-blue-50 {
-  background-color: #59192b !important;
+  background-color: transparent !important;
+}
+
+/* Make backgrounds transparent in dark mode */
+.dark .backdrop-blur-md.bg-green-50\/90,
+.dark .backdrop-blur-md.bg-yellow-50\/90,
+.dark .backdrop-blur-md.bg-primary-50\/90 {
+  background-color: transparent !important;
+  backdrop-filter: blur(8px);
 }
 
 .dark .bg-white\/70,
 .dark .bg-white\/50,
 .dark .backdrop-blur-sm.bg-white\/70 {
-  background-color: rgba(74, 20, 36, 0.7) !important;
+  background-color: rgba(74, 20, 36, 0.4) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Text selection in dark mode */
+.dark ::selection {
+  background-color: white !important;
+  color: var(--primary-600) !important;
 }
 
 /* Make sure all pages in dark mode have the correct background */
 .dark .min-h-screen {
   background-color: #59192b !important;
+  background-image: radial-gradient(circle at top right, rgba(255, 255, 255, 0.1) 0%, transparent 60%),
+                    radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
 }
 
 /* Ensure badge pages have proper dark background */
 .dark .relative.z-10 {
-  background-color: #59192b !important;
+  background-color: transparent !important;
 }
 
 /* Share portfolio button should be red in both modes */

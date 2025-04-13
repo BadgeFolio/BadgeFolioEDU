@@ -188,7 +188,7 @@ export default function Dashboard() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white dark:from-[#59192b] dark:to-[#4a1424]">
+      <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white dark:from-transparent dark:to-transparent dark:backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Welcome Section */}
           <div className="mb-8">
@@ -204,7 +204,7 @@ export default function Dashboard() {
 
           {/* Stats Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-primary-500 to-primary-600 dark:from-primary-600 dark:to-primary-800 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform duration-200">
+            <div className="bg-gradient-to-br from-primary-500 to-primary-600 dark:from-primary-600/80 dark:to-primary-800/80 dark:backdrop-blur-md rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform duration-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-primary-100 text-sm">Total Badges</p>
@@ -216,7 +216,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-primary-400 to-primary-500 dark:from-primary-500 dark:to-primary-700 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform duration-200">
+            <div className="bg-gradient-to-br from-primary-400 to-primary-500 dark:from-primary-500/80 dark:to-primary-700/80 dark:backdrop-blur-md rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform duration-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-primary-50 text-sm">{isTeacher ? 'Active Students' : 'Badges Earned'}</p>
@@ -228,7 +228,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-900 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform duration-200">
+            <div className="bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-700/80 dark:to-primary-900/80 dark:backdrop-blur-md rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform duration-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-primary-100 text-sm">{isTeacher ? 'Pending Reviews' : 'In Progress'}</p>
