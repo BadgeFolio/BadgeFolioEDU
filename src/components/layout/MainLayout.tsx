@@ -42,6 +42,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Redirect to sign in if not authenticated
   if (status === 'unauthenticated') {
@@ -199,6 +200,18 @@ export default function MainLayout({ children }: MainLayoutProps) {
               <div className="mr-4">
                 <ThemeToggle />
               </div>
+              <div className="sm:hidden">
+                <button 
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="inline-flex items-center justify-center p-2 rounded-md text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+                >
+                  {isMobileMenuOpen ? (
+                    <XMarkIcon className="h-6 w-6" />
+                  ) : (
+                    <Bars3Icon className="h-6 w-6" />
+                  )}
+                </button>
+              </div>
               {session?.user && (
                 <div className="relative">
                   <button
@@ -341,6 +354,88 @@ export default function MainLayout({ children }: MainLayoutProps) {
               )}
             </div>
           </div>
+          {isMobileMenuOpen && (
+            <div className="sm:hidden bg-white dark:bg-[#4a1424] pb-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="space-y-1 px-2">
+                <Link
+                  href="/dashboard"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center">
+                    <HomeIcon className="mr-3 h-5 w-5" />
+                    Dashboard
+                  </div>
+                </Link>
+                <Link
+                  href="/badges"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center">
+                    <TrophyIcon className="mr-3 h-5 w-5" />
+                    Badges
+                  </div>
+                </Link>
+                {!isTeacher && (
+                  <Link
+                    href="/portfolio"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <div className="flex items-center">
+                      <BookOpenIcon className="mr-3 h-5 w-5" />
+                      My Portfolio
+                    </div>
+                  </Link>
+                )}
+                {(isTeacher || isAdmin) && (
+                  <>
+                    <Link
+                      href="/badges/create"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center">
+                        <PlusIcon className="mr-3 h-5 w-5" />
+                        Create Badge
+                      </div>
+                    </Link>
+                    <Link
+                      href="/admin/portfolios"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center">
+                        <FolderIcon className="mr-3 h-5 w-5" />
+                        Portfolios
+                      </div>
+                    </Link>
+                  </>
+                )}
+                <Link
+                  href="/submissions"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center">
+                    <ClipboardDocumentCheckIcon className="mr-3 h-5 w-5" />
+                    {session?.user && ((session.user as any).role === 'teacher' || (session.user as any).role === 'admin') ? 'Review Submissions' : 'My Submissions'}
+                  </div>
+                </Link>
+                <Link
+                  href="/community"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center">
+                    <UsersIcon className="mr-3 h-5 w-5" />
+                    Community
+                  </div>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
