@@ -255,7 +255,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none opacity-70 group-hover:opacity-50 transition-opacity"></div>
                     
                     <div className="absolute bottom-0 left-0 w-full p-4">
-                      <div className="flex items-center backdrop-blur-md bg-white/30 dark:bg-black/30 rounded-xl px-4 py-2 shadow-lg">
+                      <div className="flex items-center backdrop-blur-md bg-gray-900/50 dark:bg-black/50 rounded-xl px-4 py-2 shadow-lg">
                         {Array(5)
                           .fill(0)
                           .map((_, i) => (
