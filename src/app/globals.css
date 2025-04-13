@@ -8,6 +8,55 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+[data-theme="high-contrast"] {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+}
+
+[data-theme="high-contrast"] body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+  font-weight: 600;
+}
+
+[data-theme="high-contrast"] .text-gray-500 {
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .text-gray-400 {
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .bg-white {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] .text-gray-900 {
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .border-gray-300 {
+  border-color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .shadow {
+  box-shadow: 0 0 0 2px #ffffff !important;
+}
+
+[data-theme="high-contrast"] .hover\:shadow-lg:hover {
+  box-shadow: 0 0 0 4px #ffffff !important;
+}
+
+[data-theme="high-contrast"] .focus\:ring-primary-500:focus {
+  box-shadow: 0 0 0 4px #ba2e4b !important;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-end-rgb));
