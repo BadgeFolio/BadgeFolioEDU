@@ -79,6 +79,24 @@
   }
 }
 
+/* Dark mode overrides to ensure dark styles are applied */
+.dark body {
+  background-color: #59192b !important;
+  color: white !important;
+}
+
+.dark .bg-white {
+  background-color: #4a1424 !important;
+}
+
+.dark .text-gray-900 {
+  color: white !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #59192b !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

@@ -17,8 +17,14 @@ export function ThemeToggle() {
     if (typeof window !== 'undefined') {
       if (resolvedTheme === 'dark') {
         document.documentElement.classList.add('dark');
+        document.documentElement.style.backgroundColor = '#59192b';
+        document.body.style.backgroundColor = '#59192b';
+        document.body.style.color = 'white';
       } else {
         document.documentElement.classList.remove('dark');
+        document.documentElement.style.backgroundColor = '';
+        document.body.style.backgroundColor = '';
+        document.body.style.color = '';
       }
     }
   }, [resolvedTheme, theme]);
@@ -31,13 +37,20 @@ export function ThemeToggle() {
     const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
     console.log(`Toggling theme from ${resolvedTheme} to ${newTheme}`);
     
-    // Manually add/remove dark class
+    // Manually add/remove dark class and set styles
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
+      document.documentElement.style.backgroundColor = '#59192b';
+      document.body.style.backgroundColor = '#59192b';
+      document.body.style.color = 'white';
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
     }
     
+    localStorage.setItem('theme', newTheme);
     setTheme(newTheme);
   };
 
