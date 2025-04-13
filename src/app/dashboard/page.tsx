@@ -61,14 +61,15 @@ export default function Dashboard() {
         // Get user's submissions
         const userSubmissions = new Set(
           submissionsData
-            .filter((s: any) => s.studentId._id === (session?.user as any)?._id)
-            .map((s: any) => s.badgeId._id)
+            .filter((s: any) => s.studentId && s.studentId._id === (session?.user as any)?._id)
+            .map((s: any) => s.badgeId?._id)
+            .filter(Boolean)
         );
 
         // Get suggested badges (not started by user)
         const availableBadges = badgesData
-          .filter((badge: any) => !userSubmissions.has(badge._id))
-          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .filter((badge: any) => badge._id && !userSubmissions.has(badge._id))
+          .sort((a: any, b: any) => new Date(b.createdAt || Date.now()).getTime() - new Date(a.createdAt || Date.now()).getTime())
           .slice(0, 3);
 
         setSuggestedBadges(availableBadges);
@@ -102,7 +103,11 @@ export default function Dashboard() {
         });
 
         // Get unique students count
-        const uniqueStudents = new Set(submissionsData.map((s: any) => s.studentId._id)).size;
+        const uniqueStudents = new Set(
+          submissionsData
+            .filter((s: any) => s.studentId && s.studentId._id)
+            .map((s: any) => s.studentId._id)
+        ).size;
 
         setStats({
           totalBadges,

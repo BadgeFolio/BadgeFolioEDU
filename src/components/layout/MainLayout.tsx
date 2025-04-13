@@ -126,7 +126,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#59192b] bg-[url('/pattern-bg-light.png')] dark:bg-[url('/pattern-bg-dark.png')] bg-repeat">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#59192b]">
       <nav className="bg-white dark:bg-[#4a1424] shadow-xl rounded-b-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
