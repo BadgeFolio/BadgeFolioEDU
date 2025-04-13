@@ -186,7 +186,7 @@ export default function CommunityWallPage() {
   if (status === 'loading' || loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -213,7 +213,7 @@ export default function CommunityWallPage() {
               <p className="mt-2 text-gray-600 dark:text-gray-300">{error}</p>
               <button
                 onClick={() => fetchCommunityData()}
-                className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition-colors"
+                className="mt-4 px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg transition-colors"
               >
                 Try Again
               </button>
@@ -229,7 +229,7 @@ export default function CommunityWallPage() {
               <p className="mt-2 text-gray-600 dark:text-gray-300">Be the first to earn a badge or check out recently published badges!</p>
               <button
                 onClick={() => router.push('/badges')}
-                className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg transition-colors"
+                className="mt-4 px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg transition-colors"
               >
                 View Available Badges
               </button>
@@ -275,7 +275,7 @@ export default function CommunityWallPage() {
                         <div className="flex items-center justify-between">
                           <div>
                             <h2 
-                              className="text-xl font-semibold text-gray-900 dark:text-gray-100 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
+                              className="text-xl font-semibold text-gray-900 dark:text-gray-100 cursor-pointer hover:text-primary-600 dark:hover:text-primary-400"
                               onClick={() => navigateToBadge(
                                 event.type === 'earned' 
                                   ? (event.item as EarnedBadge).badge._id 
@@ -300,7 +300,7 @@ export default function CommunityWallPage() {
                           <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                             event.type === 'earned' 
                               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                              : 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200'
                           }`}>
                             {event.type === 'earned' ? 'Badge Earned' : 'New Badge'}
                           </div>
@@ -326,7 +326,7 @@ export default function CommunityWallPage() {
                                 onClick={() => handleReaction(event.item._id, emoji, event.type)}
                                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
                                   hasReacted
-                                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200'
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
                                 }`}
                               >

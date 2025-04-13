@@ -363,13 +363,15 @@ export default function SubmissionsPage() {
             </p>
           </div>
           <div className="mt-4 sm:mt-0">
-            <Link
-              href="/badges"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
-              New Submission
-            </Link>
+            <div className="flex-none">
+              <Link
+                href="/badges"
+                className="action-button"
+              >
+                <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+                New Submission
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -385,7 +387,7 @@ export default function SubmissionsPage() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                    className="focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                     placeholder="Search submissions"
                   />
                 </div>
@@ -396,10 +398,10 @@ export default function SubmissionsPage() {
                     <button
                       key={tab}
                       onClick={() => handleTabClick(tab as TabType)}
-                      className={`px-3 py-2 font-medium text-sm rounded-md ${
+                      className={`tab-button ${
                         activeTab === tab
-                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          ? 'tab-active'
+                          : 'tab-inactive hover:bg-gray-50 dark:hover:bg-gray-700'
                       }`}
                     >
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -410,7 +412,7 @@ export default function SubmissionsPage() {
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
-                    className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white"
+                    className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -420,7 +422,7 @@ export default function SubmissionsPage() {
                   <div>
                     <select
                       id="teacher-filter"
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400 sm:text-sm rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                       value={selectedTeacher}
                       onChange={(e) => handleTeacherChange(e.target.value)}
                     >
@@ -442,7 +444,7 @@ export default function SubmissionsPage() {
                   <input
                     type="checkbox"
                     id="select-all"
-                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600"
                     checked={selectedSubmissions.length > 0 && selectedSubmissions.length === filteredSubmissions.length}
                     onChange={handleSelectAllSubmissions}
                   />
@@ -478,7 +480,7 @@ export default function SubmissionsPage() {
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
           </div>
         ) : error ? (
           <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4">
@@ -505,7 +507,7 @@ export default function SubmissionsPage() {
             <div className="mt-6">
               <Link
                 href="/badges"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="action-button"
               >
                 <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 Submit a Badge
@@ -527,7 +529,7 @@ export default function SubmissionsPage() {
                           <input
                             type="checkbox"
                             id={`select-${submission._id}`}
-                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                            className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600"
                             checked={selectedSubmissions.includes(submission._id)}
                             onChange={() => handleSelectSubmission(submission._id)}
                           />
