@@ -122,7 +122,7 @@
 
 /* Card styles */
 .card {
-  @apply rounded-lg border bg-card text-card-foreground shadow-soft dark:shadow-soft-dark;
+  @apply rounded-lg border bg-white text-gray-900 shadow-soft dark:bg-gray-900 dark:text-white dark:shadow-soft-dark;
 }
 
 /* Input styles */
