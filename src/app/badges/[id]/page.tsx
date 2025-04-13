@@ -172,7 +172,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto">
-        <div className="relative bg-gradient-to-b from-white to-gray-50 dark:from-[#59192b] dark:to-[#4a1424] dark:bg-[#59192b] shadow-2xl overflow-hidden sm:rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30">
+        <div className="relative dark:bg-[#59192b] bg-white shadow-2xl overflow-hidden sm:rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30">
           <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10 z-0"></div>
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-400 dark:bg-primary-600 rounded-full filter blur-3xl opacity-20"></div>
           <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-secondary-400 dark:bg-secondary-600 rounded-full filter blur-3xl opacity-20"></div>
@@ -397,7 +397,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                   </div>
                 ) : (
                   <div className="backdrop-blur-md bg-primary-50/90 dark:bg-primary-900/30 p-8 rounded-2xl shadow-lg border border-primary-200/50 dark:border-primary-700/30">
-                    <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-300 dark:to-primary-100 mb-6 flex items-center">
+                    <h3 className="text-3xl font-bold text-primary-700 dark:text-white mb-6 flex items-center">
                       <TrophyIcon className="h-9 w-9 mr-3 text-primary-600 dark:text-primary-300" />
                       Ready to Earn This Badge?
                     </h3>

@@ -164,6 +164,15 @@
 /* Badge page background color for dark mode */
 .dark .max-w-7xl > .relative.bg-gradient-to-b {
   background-color: #59192b !important;
+  background-image: none !important;
+}
+
+/* Ensure badge detail page content is visible */
+.dark .backdrop-blur-sm, 
+.dark .backdrop-blur-md, 
+.dark .backdrop-blur-xl {
+  background-color: rgba(89, 25, 43, 0.7) !important;
+  color: white !important;
 }
 
 /* Share portfolio button should be red in both modes */
