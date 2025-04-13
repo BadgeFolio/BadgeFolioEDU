@@ -133,7 +133,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
                 <Link href="/" className="text-2xl font-bold text-red-600 dark:text-red-400 hover-wiggle">
-                  <span className="bg-white dark:bg-[#4a1424] p-2 rounded-xl shadow-lg inline-block">Badge</span>
+                  <span className="bg-transparent dark:bg-transparent p-2 rounded-xl shadow-lg inline-block">Badge</span>
                   <span className="bg-primary-500 text-white p-2 rounded-xl shadow-lg inline-block ml-1">Folio</span>
                 </Link>
               </div>
@@ -344,7 +344,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </div>
       </nav>
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 transition-all duration-300">
+        <div className="transition-all duration-300">
           {children}
         </div>
       </main>
