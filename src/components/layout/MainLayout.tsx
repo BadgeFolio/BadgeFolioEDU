@@ -133,8 +133,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
           <div className="flex justify-between h-20">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <Link href="/" className="text-2xl font-bold text-red-600 dark:text-red-400 hover-wiggle">
-                  <span className="bg-transparent dark:bg-transparent p-2 rounded-xl shadow-lg inline-block">Badge</span>
+                <Link href="/" className="text-2xl font-bold hover-wiggle">
+                  <span className="text-red-600 dark:text-white p-2 inline-block">Badge</span>
                   <span className="bg-primary-500 text-white p-2 rounded-xl shadow-lg inline-block ml-1">Folio</span>
                 </Link>
               </div>
