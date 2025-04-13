@@ -17,6 +17,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.5",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.9.0",

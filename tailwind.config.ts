@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter var', 'system-ui', 'sans-serif'],
+        display: ['Cal Sans', 'Inter var', 'system-ui', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#fdf2f4',
@@ -21,6 +25,18 @@ const config: Config = {
           700: '#8c2338',
           800: '#701d2e',
           900: '#5c1826',
+        },
+        secondary: {
+          50: '#f8f9fa',
+          100: '#e9ecef',
+          200: '#dee2e6',
+          300: '#ced4da',
+          400: '#adb5bd',
+          500: '#6c757d',
+          600: '#495057',
+          700: '#343a40',
+          800: '#212529',
+          900: '#121416',
         },
         blue: {
           50: '#f0f9ff',
@@ -93,6 +109,29 @@ const config: Config = {
           700: '#0f766e',
           800: '#115e59',
           900: '#134e4a',
+        },
+      },
+      boxShadow: {
+        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+        'soft-dark': '0 2px 15px -3px rgba(0, 0, 0, 0.2), 0 10px 20px -2px rgba(0, 0, 0, 0.15)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'slide-down': 'slideDown 0.5s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
         },
       },
     },
