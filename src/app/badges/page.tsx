@@ -281,7 +281,7 @@ export default function Badges() {
                 <div
                   key={badge._id}
                   onClick={() => router.push(`/badges/${badge._id}`)}
-                  className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                  className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200 cursor-pointer border-0"
                 >
                   <div className="p-6">
                     <div className="flex flex-col h-full">

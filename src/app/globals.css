@@ -69,11 +69,9 @@
     --input: 0 0% 50%;
     --ring: 346 100% 50%;
   }
-}
 
-@layer base {
   * {
-    @apply border-[hsl(var(--border))];
+    @apply border-0;
   }
   body {
     @apply bg-white text-gray-900 dark:bg-[#59192b] dark:text-white;
@@ -122,16 +120,16 @@
 
 /* Card styles */
 .card {
-  @apply rounded-lg border bg-white text-gray-900 shadow-soft dark:bg-gray-900 dark:text-white dark:shadow-soft-dark;
+  @apply rounded-lg border-0 bg-white text-gray-900 shadow-soft dark:bg-gray-900 dark:text-white dark:shadow-soft-dark;
 }
 
 /* Input styles */
 .input {
-  @apply flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm 
+  @apply flex h-10 w-full rounded-md border-0 ring-1 ring-gray-300 bg-white px-3 py-2 text-sm 
          ring-offset-2 file:border-0 file:bg-transparent file:text-sm file:font-medium 
          placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 
          focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed 
-         disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:placeholder:text-gray-500;
+         disabled:opacity-50 dark:ring-gray-700 dark:bg-gray-900 dark:placeholder:text-gray-500;
 }
 
 [data-theme="high-contrast"] body {

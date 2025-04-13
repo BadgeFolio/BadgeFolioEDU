@@ -131,7 +131,7 @@ export default function BadgeForm({ onSubmit, initialData }: BadgeFormProps) {
           Badge Image
         </label>
         <div className="mt-1 flex items-center space-x-4">
-          <div className="flex justify-center items-center w-32 h-32 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg overflow-hidden dark:bg-gray-800">
+          <div className="flex justify-center items-center w-32 h-32 bg-gray-100 dark:bg-gray-800 border-0 rounded-lg overflow-hidden">
             {imagePreview ? (
               <Image
                 src={imagePreview}

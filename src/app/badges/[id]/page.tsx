@@ -245,7 +245,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                 </span>
               </div>
             </div>
-            <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:px-6">
+            <div className="my-4 px-4 py-5 sm:px-6">
               <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</dt>
@@ -297,10 +297,10 @@ export default function BadgePage({ params }: { params: { id: string } }) {
             
             {/* Submission Section */}
             {session?.user?.role === 'student' && (
-              <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:px-6">
+              <div className="my-4 px-4 py-5 sm:px-6">
                 <div className="space-y-4">
                   {hasEarnedBadge ? (
-                    <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 p-4">
+                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded">
                       <div className="flex">
                         <div className="flex-shrink-0">
                           <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -315,7 +315,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                       </div>
                     </div>
                   ) : hasPendingSubmission ? (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded">
                       <div className="flex">
                         <div className="flex-shrink-0">
                           <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

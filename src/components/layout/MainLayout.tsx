@@ -123,7 +123,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-[#59192b]">
-      <nav className="bg-white dark:bg-[#4a1424] shadow-sm">
+      <nav className="bg-white dark:bg-[#4a1424] shadow-md border-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
