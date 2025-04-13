@@ -106,7 +106,7 @@ export default function BadgeList({ badges, isSelectionMode = false, selectedBad
             <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">{badge.description}</p>
             <div className="mt-4 flex justify-between items-center">
               <span className="text-xs text-gray-500 dark:text-gray-400 italic">
-                {badge.badges?.length || 0} Badges
+                Difficulty: {badge.difficulty}/5
               </span>
               {!isSelectionMode && (
                 <Link
