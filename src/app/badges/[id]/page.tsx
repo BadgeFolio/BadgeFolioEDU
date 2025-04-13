@@ -8,6 +8,7 @@ import SubmissionForm from '@/components/submissions/SubmissionForm';
 import MainLayout from '@/components/layout/MainLayout';
 import { toast } from 'react-hot-toast';
 import { Session } from 'next-auth';
+import { EyeIcon, EyeSlashIcon, ArrowPathIcon, LockClosedIcon, LockOpenIcon, PencilIcon, TrashIcon, CheckCircleIcon, ClockIcon, TrophyIcon, InformationCircleIcon, UserCircleIcon, StarIcon } from '@heroicons/react/24/outline';
 
 interface ExtendedSession extends Session {
   user: {
@@ -170,171 +171,221 @@ export default function BadgePage({ params }: { params: { id: string } }) {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{badge.name}</h1>
-                  <div className="mt-2 flex items-center space-x-2">
-                    <span className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-white dark:bg-gray-800 shadow-xl overflow-hidden sm:rounded-3xl">
+          <div className="relative">
+            {/* Decorative background pattern */}
+            <div className="absolute top-0 left-0 w-full h-40 bg-primary-500/10 dark:bg-primary-900/20 
+                           bg-[url('/pattern-confetti.svg')] bg-repeat z-0"></div>
+            
+            <div className="relative z-10 px-6 py-6 sm:px-8 sm:pt-8">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="flex-1">
+                  <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2 
+                                hover-scale inline-block">{badge.name}</h1>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <span className={`badge-category flex items-center ${
                       badge.isPublic 
                         ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
                         : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                     }`}>
+                      {badge.isPublic ? 
+                        <EyeIcon className="h-4 w-4 mr-1" /> : 
+                        <EyeSlashIcon className="h-4 w-4 mr-1" />}
                       {badge.isPublic ? 'Public' : 'Private'}
                     </span>
                     {canModify && (
                       <button
                         onClick={toggleVisibility}
                         disabled={isUpdating}
-                        className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 hover:bg-blue-200 dark:hover:bg-blue-700"
+                        className="badge-category bg-primary-100 text-primary-800 dark:bg-primary-800 dark:text-primary-100 hover:scale-105"
                       >
+                        {isUpdating ? 
+                          <ArrowPathIcon className="h-4 w-4 mr-1 animate-spin" /> : 
+                          badge.isPublic ? <LockClosedIcon className="h-4 w-4 mr-1" /> : <LockOpenIcon className="h-4 w-4 mr-1" />}
                         {isUpdating ? 'Updating...' : `Make ${badge.isPublic ? 'Private' : 'Public'}`}
                       </button>
                     )}
                   </div>
                 </div>
                 {canModify && (
-                  <div className="flex space-x-2">
+                  <div className="flex flex-wrap gap-3">
                     <button
                       onClick={() => router.push(`/badges/${params.id}/edit`)}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                      className="btn btn-primary"
                     >
+                      <PencilIcon className="h-5 w-5 mr-2" />
                       Edit Badge
                     </button>
                     <button
                       onClick={handleDelete}
                       disabled={isDeleting}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                      className="btn bg-red-600 hover:bg-red-700 text-white dark:bg-red-500 dark:hover:bg-red-600"
                     >
+                      {isDeleting ? 
+                        <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" /> :
+                        <TrashIcon className="h-5 w-5 mr-2" />}
                       {isDeleting ? 'Deleting...' : 'Delete Badge'}
                     </button>
                   </div>
                 )}
               </div>
-              {badge.image && (
-                <div className="mt-4">
-                  <img
-                    src={badge.image}
-                    alt={badge.name}
-                    className="w-32 h-32 object-cover rounded-lg shadow-md"
-                  />
+              
+              <div className="mt-8 md:mt-12 flex flex-col md:flex-row gap-8">
+                {badge.image && (
+                  <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
+                    <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl border-4 border-white dark:border-gray-700 transform hover:rotate-2 transition-all duration-300">
+                      <img
+                        src={badge.image}
+                        alt={badge.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
+                    </div>
+                    <div className="mt-4 flex justify-center">
+                      <div className="flex items-center bg-white dark:bg-gray-700 rounded-full px-4 py-2 shadow-md">
+                        {Array(5)
+                          .fill(0)
+                          .map((_, i) => (
+                            <StarIcon
+                              key={`star-${i}`}
+                              className={`h-6 w-6 ${
+                                i < badge.difficulty ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
+                              }`}
+                              fill={i < badge.difficulty ? 'currentColor' : 'none'}
+                            />
+                          ))}
+                        <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Level {badge.difficulty}/5
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex-1">
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 shadow-inner">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                      <InformationCircleIcon className="h-5 w-5 mr-2 text-primary-500" />
+                      About this Badge
+                    </h2>
+                    <p className="mt-1 text-gray-700 dark:text-gray-300">{badge.description}</p>
+                    
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                          Category
+                        </h3>
+                        <div>
+                          {badge.category && typeof badge.category === 'object' && badge.category.name ? (
+                            <span 
+                              className="badge-category inline-flex items-center"
+                              style={{ 
+                                backgroundColor: badge.category.color || 'gray',
+                                color: '#ffffff',
+                              }}
+                            >
+                              {badge.category.name}
+                            </span>
+                          ) : (
+                            <span 
+                              className="badge-category inline-flex items-center"
+                              style={{ 
+                                backgroundColor: 'rgb(156, 163, 175)',
+                                color: '#ffffff',
+                              }}
+                            >
+                              {typeof badge.category === 'string' ? badge.category : 'Uncategorized'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                          Created By
+                        </h3>
+                        <div className="flex items-center">
+                          <UserCircleIcon className="h-5 w-5 text-gray-500 mr-2" />
+                          <span className="text-gray-900 dark:text-gray-300">
+                            {badge.creatorId.name || badge.creatorId.email}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6">
+                      <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                        Criteria to Earn
+                      </h3>
+                      <div className="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-sm border-l-4 border-primary-500">
+                        <p className="text-gray-700 dark:text-gray-300">{badge.criteria}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
-              <div className="mt-4 flex items-center">
-                <div className="flex">
-                  {Array(5)
-                    .fill(0)
-                    .map((_, i) => (
-                      <svg
-                        key={`star-${i}`}
-                        className={`h-6 w-6 ${
-                          i < badge.difficulty ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                </div>
-                <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                  Difficulty Level: {badge.difficulty}/5
-                </span>
               </div>
-            </div>
-            <div className="my-4 px-4 py-5 sm:px-6">
-              <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-300">{badge.description}</dd>
-                </div>
-
-                <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Category</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-300">
-                    {badge.category && typeof badge.category === 'object' && badge.category.name ? (
-                      <span 
-                        className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium shadow-sm"
-                        style={{ 
-                          backgroundColor: badge.category.color || 'gray',
-                          color: '#ffffff',
-                          fontWeight: '500',
-                        }}
-                      >
-                        {badge.category.name}
-                      </span>
-                    ) : (
-                      <span 
-                        className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium shadow-sm"
-                        style={{ 
-                          backgroundColor: 'rgb(156, 163, 175)',
-                          color: '#ffffff',
-                          fontWeight: '500',
-                        }}
-                      >
-                        {typeof badge.category === 'string' ? badge.category : 'Uncategorized'}
-                      </span>
-                    )}
-                  </dd>
-                </div>
-
-                <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Created By</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-300">
-                    {badge.creatorId.name || badge.creatorId.email}
-                  </dd>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Criteria</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-gray-300">{badge.criteria}</dd>
-                </div>
-              </dl>
             </div>
             
             {/* Submission Section */}
             {session?.user?.role === 'student' && (
-              <div className="my-4 px-4 py-5 sm:px-6">
-                <div className="space-y-4">
+              <div className="mt-8 px-6 py-6 sm:px-8 sm:pb-8">
+                <div className="space-y-6">
                   {hasEarnedBadge ? (
-                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded">
-                      <div className="flex">
-                        <div className="flex-shrink-0">
-                          <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
+                    <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-2xl shadow-inner">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 bg-green-100 dark:bg-green-800 p-3 rounded-full">
+                          <CheckCircleIcon className="h-8 w-8 text-green-600 dark:text-green-300" />
                         </div>
-                        <div className="ml-3">
-                          <p className="text-sm text-green-700 dark:text-green-200">
-                            Congratulations! You've earned this badge.
+                        <div className="ml-5">
+                          <h3 className="text-lg font-bold text-green-800 dark:text-green-100">
+                            Congratulations!
+                          </h3>
+                          <p className="text-green-700 dark:text-green-200 mt-1">
+                            You've earned this badge. It's now part of your collection!
                           </p>
+                          <div className="mt-4">
+                            <button 
+                              onClick={() => router.push('/portfolio')}
+                              className="btn bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              View in My Portfolio
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   ) : hasPendingSubmission ? (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded">
-                      <div className="flex">
-                        <div className="flex-shrink-0">
-                          <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-2xl shadow-inner">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 bg-yellow-100 dark:bg-yellow-800 p-3 rounded-full">
+                          <ClockIcon className="h-8 w-8 text-yellow-600 dark:text-yellow-300" />
                         </div>
-                        <div className="ml-3">
-                          <p className="text-sm text-yellow-700 dark:text-yellow-200">
-                            Your submission for this badge is currently being reviewed.
+                        <div className="ml-5">
+                          <h3 className="text-lg font-bold text-yellow-800 dark:text-yellow-100">
+                            Under Review
+                          </h3>
+                          <p className="text-yellow-700 dark:text-yellow-200 mt-1">
+                            Your submission for this badge is currently being reviewed by a teacher.
                           </p>
+                          <div className="mt-4">
+                            <button 
+                              onClick={() => router.push('/submissions')}
+                              className="btn bg-yellow-600 hover:bg-yellow-700 text-white"
+                            >
+                              Check Submission Status
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+                    <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-2xl shadow-inner">
+                      <h3 className="text-2xl font-bold text-primary-800 dark:text-primary-100 mb-4 flex items-center">
+                        <TrophyIcon className="h-7 w-7 mr-2 text-primary-600 dark:text-primary-300" />
                         Ready to Earn This Badge?
                       </h3>
-                      <div className="bg-white dark:bg-gray-800">
+                      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <SubmissionForm 
                           badge={{
                             ...badge,
