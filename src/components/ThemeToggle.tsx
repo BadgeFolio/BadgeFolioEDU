@@ -12,6 +12,15 @@ export function ThemeToggle() {
   React.useEffect(() => {
     setMounted(true);
     console.log('Current theme state:', { resolvedTheme, theme });
+    
+    // Ensure dark class is applied/removed based on the current theme
+    if (typeof window !== 'undefined') {
+      if (resolvedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
   }, [resolvedTheme, theme]);
 
   if (!mounted) {
@@ -21,6 +30,14 @@ export function ThemeToggle() {
   const toggleTheme = () => {
     const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
     console.log(`Toggling theme from ${resolvedTheme} to ${newTheme}`);
+    
+    // Manually add/remove dark class
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
     setTheme(newTheme);
   };
 
