@@ -172,236 +172,250 @@ export default function BadgePage({ params }: { params: { id: string } }) {
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 shadow-xl overflow-hidden sm:rounded-3xl">
-          <div className="relative">
-            {/* Decorative background pattern */}
-            <div className="absolute top-0 left-0 w-full h-40 bg-primary-500/10 dark:bg-primary-900/20 
-                           bg-[url('/pattern-confetti.svg')] bg-repeat z-0"></div>
-            
-            <div className="relative z-10 px-6 py-6 sm:px-8 sm:pt-8">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div className="flex-1">
-                  <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2 
-                                hover-scale inline-block">{badge.name}</h1>
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <span className={`badge-category flex items-center ${
-                      badge.isPublic 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                    }`}>
-                      {badge.isPublic ? 
-                        <EyeIcon className="h-4 w-4 mr-1" /> : 
-                        <EyeSlashIcon className="h-4 w-4 mr-1" />}
-                      {badge.isPublic ? 'Public' : 'Private'}
-                    </span>
-                    {canModify && (
-                      <button
-                        onClick={toggleVisibility}
-                        disabled={isUpdating}
-                        className="badge-category bg-primary-100 text-primary-800 dark:bg-primary-800 dark:text-primary-100 hover:scale-105"
-                      >
-                        {isUpdating ? 
-                          <ArrowPathIcon className="h-4 w-4 mr-1 animate-spin" /> : 
-                          badge.isPublic ? <LockClosedIcon className="h-4 w-4 mr-1" /> : <LockOpenIcon className="h-4 w-4 mr-1" />}
-                        {isUpdating ? 'Updating...' : `Make ${badge.isPublic ? 'Private' : 'Public'}`}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {canModify && (
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      onClick={() => router.push(`/badges/${params.id}/edit`)}
-                      className="btn btn-primary"
+        <div className="relative bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-2xl overflow-hidden sm:rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30">
+          <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10 z-0"></div>
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-400 dark:bg-primary-600 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-secondary-400 dark:bg-secondary-600 rounded-full filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+          
+          <div className="relative z-10 px-6 py-6 sm:px-8 sm:pt-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  <span className={`badge-category flex items-center ${
+                    badge.isPublic 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                  }`}>
+                    {badge.isPublic ? 
+                      <EyeIcon className="h-4 w-4 mr-1" /> : 
+                      <EyeSlashIcon className="h-4 w-4 mr-1" />}
+                    {badge.isPublic ? 'Public' : 'Private'}
+                  </span>
+                  {badge.category && typeof badge.category === 'object' && badge.category.name && (
+                    <span 
+                      className="badge-category inline-flex items-center"
+                      style={{ 
+                        backgroundColor: badge.category.color || 'gray',
+                        color: '#ffffff',
+                      }}
                     >
-                      <PencilIcon className="h-5 w-5 mr-2" />
+                      {badge.category.name}
+                    </span>
+                  )}
+                </div>
+                <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 mb-3 
+                              hover-scale inline-block">{badge.name}</h1>
+                
+                {canModify && (
+                  <div className="flex flex-wrap gap-4 mt-6">
+                    <button
+                      onClick={toggleVisibility}
+                      disabled={isUpdating}
+                      className="btn-glass btn-primary group"
+                    >
+                      {isUpdating ? 
+                        <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" /> : 
+                        badge.isPublic ? 
+                          <EyeSlashIcon className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" /> : 
+                          <EyeIcon className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />}
+                      {isUpdating ? 'Updating...' : badge.isPublic ? 'Make Private' : 'Make Public'}
+                    </button>
+                    <button
+                      onClick={() => router.push(`/badges/edit/${params.id}`)}
+                      className="btn-glass btn-secondary group"
+                    >
+                      <PencilIcon className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
                       Edit Badge
                     </button>
                     <button
                       onClick={handleDelete}
                       disabled={isDeleting}
-                      className="btn bg-red-600 hover:bg-red-700 text-white dark:bg-red-500 dark:hover:bg-red-600"
+                      className="btn-glass btn-danger group"
                     >
                       {isDeleting ? 
                         <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" /> :
-                        <TrashIcon className="h-5 w-5 mr-2" />}
+                        <TrashIcon className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />}
                       {isDeleting ? 'Deleting...' : 'Delete Badge'}
                     </button>
                   </div>
                 )}
               </div>
-              
-              <div className="mt-8 md:mt-12 flex flex-col md:flex-row gap-8">
-                {badge.image && (
-                  <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
-                    <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl border-4 border-white dark:border-gray-700 transform hover:rotate-2 transition-all duration-300">
-                      <img
-                        src={badge.image}
-                        alt={badge.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
-                    </div>
-                    <div className="mt-4 flex justify-center">
-                      <div className="flex items-center bg-white dark:bg-gray-700 rounded-full px-4 py-2 shadow-md">
+            </div>
+            
+            <div className="mt-8 md:mt-12 flex flex-col md:flex-row gap-8">
+              {badge.image && (
+                <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
+                  <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white/80 dark:border-gray-700/80 
+                                 group hover:scale-[1.02] transition-all duration-500 ease-out">
+                    <img
+                      src={badge.image}
+                      alt={badge.name}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none opacity-70 group-hover:opacity-50 transition-opacity"></div>
+                    
+                    <div className="absolute bottom-0 left-0 w-full p-4">
+                      <div className="flex items-center backdrop-blur-md bg-white/30 dark:bg-black/30 rounded-xl px-4 py-2 shadow-lg">
                         {Array(5)
                           .fill(0)
                           .map((_, i) => (
                             <StarIcon
                               key={`star-${i}`}
                               className={`h-6 w-6 ${
-                                i < badge.difficulty ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
-                              }`}
+                                i < badge.difficulty ? 'text-yellow-400 drop-shadow-glow-yellow' : 'text-gray-300 dark:text-gray-600'
+                              } transition-all duration-300 hover:scale-110`}
                               fill={i < badge.difficulty ? 'currentColor' : 'none'}
                             />
                           ))}
-                        <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <span className="ml-2 text-sm font-medium text-white drop-shadow">
                           Level {badge.difficulty}/5
                         </span>
                       </div>
                     </div>
                   </div>
-                )}
-                
-                <div className="flex-1">
-                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 shadow-inner">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                      <InformationCircleIcon className="h-5 w-5 mr-2 text-primary-500" />
+                </div>
+              )}
+              
+              <div className="flex-1">
+                <div className="backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 rounded-2xl p-8 shadow-inner border border-white/50 dark:border-gray-700/50">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center group">
+                    <InformationCircleIcon className="h-6 w-6 mr-2 text-primary-500 group-hover:scale-110 transition-transform" />
+                    <span className="relative">
                       About this Badge
-                    </h2>
-                    <p className="mt-1 text-gray-700 dark:text-gray-300">{badge.description}</p>
-                    
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </span>
+                  </h2>
+                  <p className="mt-2 text-gray-700 dark:text-gray-300 leading-relaxed">{badge.description}</p>
+                  
+                  <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 flex items-center">
+                        <span className="w-8 h-0.5 bg-primary-500 mr-2"></span>
+                        Category
+                      </h3>
                       <div>
-                        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                          Category
-                        </h3>
-                        <div>
-                          {badge.category && typeof badge.category === 'object' && badge.category.name ? (
-                            <span 
-                              className="badge-category inline-flex items-center"
-                              style={{ 
-                                backgroundColor: badge.category.color || 'gray',
-                                color: '#ffffff',
-                              }}
-                            >
-                              {badge.category.name}
-                            </span>
-                          ) : (
-                            <span 
-                              className="badge-category inline-flex items-center"
-                              style={{ 
-                                backgroundColor: 'rgb(156, 163, 175)',
-                                color: '#ffffff',
-                              }}
-                            >
-                              {typeof badge.category === 'string' ? badge.category : 'Uncategorized'}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                          Created By
-                        </h3>
-                        <div className="flex items-center">
-                          <UserCircleIcon className="h-5 w-5 text-gray-500 mr-2" />
-                          <span className="text-gray-900 dark:text-gray-300">
-                            {badge.creatorId.name || badge.creatorId.email}
+                        {badge.category && typeof badge.category === 'object' && badge.category.name ? (
+                          <span 
+                            className="badge-category inline-flex items-center hover:scale-105 transition-transform cursor-default"
+                            style={{ 
+                              backgroundColor: badge.category.color || 'gray',
+                              color: '#ffffff',
+                            }}
+                          >
+                            {badge.category.name}
                           </span>
-                        </div>
+                        ) : (
+                          <span 
+                            className="badge-category inline-flex items-center"
+                            style={{ 
+                              backgroundColor: 'rgb(156, 163, 175)',
+                              color: '#ffffff',
+                            }}
+                          >
+                            {typeof badge.category === 'string' ? badge.category : 'Uncategorized'}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    
-                    <div className="mt-6">
-                      <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                        Criteria to Earn
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 flex items-center">
+                        <span className="w-8 h-0.5 bg-primary-500 mr-2"></span>
+                        Created By
                       </h3>
-                      <div className="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-sm border-l-4 border-primary-500">
-                        <p className="text-gray-700 dark:text-gray-300">{badge.criteria}</p>
+                      <div className="flex items-center bg-white/50 dark:bg-gray-700/50 rounded-full py-2 px-4 shadow-sm border border-white/50 dark:border-gray-600/50 hover:shadow-md transition-shadow">
+                        <UserCircleIcon className="h-5 w-5 text-primary-500 mr-2" />
+                        <span className="text-gray-900 dark:text-gray-300 font-medium">
+                          {badge.creatorId.name || badge.creatorId.email}
+                        </span>
                       </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-8">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 flex items-center">
+                      <span className="w-8 h-0.5 bg-primary-500 mr-2"></span>
+                      Criteria to Earn
+                    </h3>
+                    <div className="backdrop-blur-md bg-white/60 dark:bg-gray-700/60 rounded-xl p-6 shadow-lg border-l-4 border-primary-500 hover:shadow-xl transition-shadow">
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{badge.criteria}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
-            {/* Submission Section */}
-            {session?.user?.role === 'student' && (
-              <div className="mt-8 px-6 py-6 sm:px-8 sm:pb-8">
-                <div className="space-y-6">
-                  {hasEarnedBadge ? (
-                    <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-2xl shadow-inner">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 bg-green-100 dark:bg-green-800 p-3 rounded-full">
-                          <CheckCircleIcon className="h-8 w-8 text-green-600 dark:text-green-300" />
-                        </div>
-                        <div className="ml-5">
-                          <h3 className="text-lg font-bold text-green-800 dark:text-green-100">
-                            Congratulations!
-                          </h3>
-                          <p className="text-green-700 dark:text-green-200 mt-1">
-                            You've earned this badge. It's now part of your collection!
-                          </p>
-                          <div className="mt-4">
-                            <button 
-                              onClick={() => router.push('/portfolio')}
-                              className="btn bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              View in My Portfolio
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : hasPendingSubmission ? (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-2xl shadow-inner">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 bg-yellow-100 dark:bg-yellow-800 p-3 rounded-full">
-                          <ClockIcon className="h-8 w-8 text-yellow-600 dark:text-yellow-300" />
-                        </div>
-                        <div className="ml-5">
-                          <h3 className="text-lg font-bold text-yellow-800 dark:text-yellow-100">
-                            Under Review
-                          </h3>
-                          <p className="text-yellow-700 dark:text-yellow-200 mt-1">
-                            Your submission for this badge is currently being reviewed by a teacher.
-                          </p>
-                          <div className="mt-4">
-                            <button 
-                              onClick={() => router.push('/submissions')}
-                              className="btn bg-yellow-600 hover:bg-yellow-700 text-white"
-                            >
-                              Check Submission Status
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-2xl shadow-inner">
-                      <h3 className="text-2xl font-bold text-primary-800 dark:text-primary-100 mb-4 flex items-center">
-                        <TrophyIcon className="h-7 w-7 mr-2 text-primary-600 dark:text-primary-300" />
-                        Ready to Earn This Badge?
-                      </h3>
-                      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <SubmissionForm 
-                          badge={{
-                            ...badge,
-                            category: typeof badge.category === 'object' ? (badge.category._id || '') : badge.category,
-                            creatorId: typeof badge.creatorId === 'object' ? badge.creatorId._id : badge.creatorId,
-                            approvedBy: typeof badge.approvedBy === 'object' ? badge.approvedBy._id : badge.approvedBy
-                          }} 
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-            
           </div>
+          
+          {/* Submission Section */}
+          {session?.user?.role === 'student' && (
+            <div className="mt-8 px-6 py-6 sm:px-8 sm:pb-8">
+              <div className="space-y-6">
+                {hasEarnedBadge ? (
+                  <div className="backdrop-blur-md bg-green-50/90 dark:bg-green-900/30 p-8 rounded-2xl shadow-lg border border-green-200/50 dark:border-green-700/30">
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      <div className="flex-shrink-0 bg-gradient-to-br from-green-400 to-green-600 dark:from-green-500 dark:to-green-700 p-5 rounded-full shadow-lg">
+                        <CheckCircleIcon className="h-12 w-12 text-white drop-shadow-md animate-pulse" style={{animationDuration: '3s'}} />
+                      </div>
+                      <div className="text-center md:text-left">
+                        <h3 className="text-2xl font-bold text-green-800 dark:text-green-100 mb-2">
+                          Congratulations! 🎉
+                        </h3>
+                        <p className="text-green-700 dark:text-green-200 text-lg mb-6">
+                          You've successfully earned this badge. It's now proudly displayed in your portfolio!
+                        </p>
+                        <button 
+                          onClick={() => router.push('/portfolio')}
+                          className="btn-gradient-success text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform transition hover:scale-105 hover:-translate-y-1"
+                        >
+                          View in My Portfolio
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : hasPendingSubmission ? (
+                  <div className="backdrop-blur-md bg-yellow-50/90 dark:bg-yellow-900/30 p-8 rounded-2xl shadow-lg border border-yellow-200/50 dark:border-yellow-700/30">
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      <div className="flex-shrink-0 bg-gradient-to-br from-yellow-400 to-yellow-600 dark:from-yellow-500 dark:to-yellow-700 p-5 rounded-full shadow-lg">
+                        <ClockIcon className="h-12 w-12 text-white drop-shadow-md animate-spin" style={{animationDuration: '10s'}} />
+                      </div>
+                      <div className="text-center md:text-left">
+                        <h3 className="text-2xl font-bold text-yellow-800 dark:text-yellow-100 mb-2">
+                          Under Review
+                        </h3>
+                        <p className="text-yellow-700 dark:text-yellow-200 text-lg mb-6">
+                          Your submission is being reviewed by our educators. We'll notify you once it's approved!
+                        </p>
+                        <button 
+                          onClick={() => router.push('/submissions')}
+                          className="btn-gradient-warning text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform transition hover:scale-105 hover:-translate-y-1"
+                        >
+                          Check Submission Status
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="backdrop-blur-md bg-primary-50/90 dark:bg-primary-900/30 p-8 rounded-2xl shadow-lg border border-primary-200/50 dark:border-primary-700/30">
+                    <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-300 dark:to-primary-100 mb-6 flex items-center">
+                      <TrophyIcon className="h-9 w-9 mr-3 text-primary-600 dark:text-primary-300 float animate-float" />
+                      Ready to Earn This Badge?
+                    </h3>
+                    <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 rounded-xl p-8 shadow-xl border border-white/50 dark:border-gray-700/50 hover:shadow-2xl transition-shadow">
+                      <SubmissionForm 
+                        badge={{
+                          ...badge,
+                          category: typeof badge.category === 'object' ? (badge.category._id || '') : badge.category,
+                          creatorId: typeof badge.creatorId === 'object' ? badge.creatorId._id : badge.creatorId,
+                          approvedBy: typeof badge.approvedBy === 'object' ? badge.approvedBy._id : badge.approvedBy
+                        }} 
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
         </div>
       </div>
     </MainLayout>
