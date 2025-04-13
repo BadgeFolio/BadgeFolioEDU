@@ -203,8 +203,9 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                     </span>
                   )}
                 </div>
-                <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 mb-3 
-                              hover-scale inline-block">{badge.name}</h1>
+                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-3">
+                  {badge.name}
+                </h1>
                 
                 {canModify && (
                   <div className="flex flex-wrap gap-4 mt-6">

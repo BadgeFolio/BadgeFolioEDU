@@ -100,6 +100,23 @@
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
+/* Light mode overrides */
+.bg-blue-600,
+.bg-blue-700 {
+  background-color: var(--primary-600) !important;
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: var(--primary-700) !important;
+}
+
+/* Background color fixes for both modes */
+.bg-gray-50,
+.bg-blue-50,
+.bg-gradient-to-b.from-blue-50 {
+  background-color: #fdf2f4 !important; /* primary-50 */
+}
+
 .dark .bg-gray-50,
 .dark .bg-blue-50,
 .dark .bg-gradient-to-b.from-blue-50 {
@@ -122,11 +139,23 @@
   background-color: #59192b !important;
 }
 
-/* Share portfolio button should be red in dark mode */
+/* Share portfolio button should be red in both modes */
+.bg-blue-500,
+.bg-blue-600,
+.bg-blue-700 {
+  background-color: #ba2e4b !important;
+}
+
 .dark .bg-blue-500,
 .dark .bg-blue-600,
 .dark .bg-blue-700 {
   background-color: #ba2e4b !important;
+}
+
+/* Remove animations and transitions */
+.hover-scale {
+  transform: none !important;
+  transition: none !important;
 }
 
 /* Custom scrollbar */
@@ -381,10 +410,6 @@
 /* Animation Classes */
 .hover-bounce {
   @apply hover:-translate-y-1 transition-transform;
-}
-
-.hover-scale {
-  @apply hover:scale-105 transition-transform;
 }
 
 .hover-rotate {
