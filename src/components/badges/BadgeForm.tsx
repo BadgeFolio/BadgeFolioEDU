@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Badge, Category, SimplifiedCategory } from '@/types';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
+import { ArrowUpTrayIcon, ArrowPathIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon } from '@heroicons/react/24/outline';
+import { StarIcon } from '@heroicons/react/24/outline';
 
 interface FormData {
   name: string;
@@ -22,7 +25,7 @@ interface BadgeFormProps {
 
 export default function BadgeForm({ onSubmit, initialData }: BadgeFormProps) {
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(initialData?.image || null);
   const [categories, setCategories] = useState<Category[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -111,166 +114,203 @@ export default function BadgeForm({ onSubmit, initialData }: BadgeFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          required
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
-        />
+    <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+              Badge Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="input"
+              placeholder="Enter an awesome badge name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+              Badge Image
+            </label>
+            <div className="flex flex-col items-center space-y-4">
+              <div 
+                className="flex justify-center items-center w-40 h-40 bg-gray-100 dark:bg-gray-800 rounded-2xl 
+                          overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 
+                          border-4 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary-400 dark:hover:border-primary-500"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {imagePreview ? (
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={imagePreview}
+                      alt="Badge preview"
+                      fill
+                      className="object-cover"
+                      unoptimized={true}
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-opacity duration-300 flex items-center justify-center">
+                      <div className="hidden group-hover:block text-white font-bold">Change Image</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center p-4 hover:scale-110 transition-transform">
+                    <PhotoIcon className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500" />
+                    <p className="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Click to upload badge image
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                      PNG, JPG or GIF (max 5MB)
+                    </p>
+                  </div>
+                )}
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                ref={fileInputRef}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="btn bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                <ArrowUpTrayIcon className="h-5 w-5 mr-2" />
+                {imagePreview ? 'Change Image' : 'Upload Image'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <label htmlFor="category" className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+              Category
+            </label>
+            <select
+              id="category"
+              required
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="input"
+            >
+              {categories.map((category) => (
+                <option key={category._id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="difficulty" className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+              Difficulty Level
+            </label>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Beginner</span>
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Expert</span>
+              </div>
+              <div className="flex items-center justify-between">
+                {Array(5).fill(0).map((_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, difficulty: index + 1 })}
+                    className="focus:outline-none transform hover:scale-125 transition-transform"
+                  >
+                    <StarIcon
+                      className={`h-10 w-10 ${
+                        index < formData.difficulty ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
+                      } cursor-pointer hover:text-yellow-400 transition-colors duration-150`}
+                      fill={index < formData.difficulty ? 'currentColor' : 'none'}
+                    />
+                  </button>
+                ))}
+              </div>
+              <div className="text-center mt-2">
+                <span className="inline-block px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-100 rounded-full text-sm font-bold">
+                  Level {formData.difficulty} of 5
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setFormData({ ...formData, isPublic: !formData.isPublic })}
+              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
+                formData.isPublic ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`${
+                  formData.isPublic ? 'translate-x-6' : 'translate-x-1'
+                } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+              />
+            </button>
+            <label htmlFor="isPublic" className="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {formData.isPublic ? 'Public Badge - All teachers can see it' : 'Private Badge - Only you can see it'}
+            </label>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Badge Image
-        </label>
-        <div className="mt-1 flex items-center space-x-4">
-          <div className="flex justify-center items-center w-32 h-32 bg-gray-100 dark:bg-gray-800 border-0 rounded-lg overflow-hidden">
-            {imagePreview ? (
-              <Image
-                src={imagePreview}
-                alt="Badge preview"
-                width={128}
-                height={128}
-                className="object-cover"
-                unoptimized={true}
-              />
-            ) : (
-              <div className="text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Upload image</p>
-              </div>
-            )}
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            ref={fileInputRef}
-            className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900 dark:file:text-blue-200 hover:file:bg-blue-100 dark:hover:file:bg-blue-800"
+      <div className="space-y-6 mt-8">
+        <div>
+          <label htmlFor="description" className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+            Description
+          </label>
+          <textarea
+            id="description"
+            required
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            rows={3}
+            className="input"
+            placeholder="Describe what this badge represents..."
           />
         </div>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          Upload a square image (max 5MB). This will be displayed when students earn the badge.
-        </p>
-      </div>
 
-      <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Description
-        </label>
-        <textarea
-          id="description"
-          required
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="criteria" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Criteria
-        </label>
-        <textarea
-          id="criteria"
-          required
-          value={formData.criteria}
-          onChange={(e) => setFormData({ ...formData, criteria: e.target.value })}
-          rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Category
-        </label>
-        <select
-          id="category"
-          required
-          value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
-        >
-          {categories.map((category) => (
-            <option key={category._id} value={category.name}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Difficulty Level
-        </label>
-        <div className="mt-1 flex items-center">
-          {Array(5).fill(0).map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setFormData({ ...formData, difficulty: index + 1 })}
-              className="focus:outline-none"
-            >
-              <svg
-                className={`h-8 w-8 ${
-                  index < formData.difficulty ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
-                } cursor-pointer hover:text-yellow-400 transition-colors duration-150`}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </button>
-          ))}
-          <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-            {formData.difficulty} of 5
-          </span>
+        <div>
+          <label htmlFor="criteria" className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+            Criteria to Earn
+          </label>
+          <textarea
+            id="criteria"
+            required
+            value={formData.criteria}
+            onChange={(e) => setFormData({ ...formData, criteria: e.target.value })}
+            rows={4}
+            className="input"
+            placeholder="How can students earn this badge? Be specific..."
+          />
         </div>
       </div>
 
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          id="isPublic"
-          checked={formData.isPublic}
-          onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
-        />
-        <label htmlFor="isPublic" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-          Make this badge public (visible to all teachers)
-        </label>
-      </div>
-
-      <div className="flex justify-end mt-6">
+      <div className="flex justify-end mt-8">
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-offset-gray-800"
+          className="interactive-btn"
         >
-          {loading ? 'Saving...' : 'Create Badge'}
+          {loading ? (
+            <>
+              <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <SparklesIcon className="h-5 w-5 mr-2" />
+              Create Badge
+            </>
+          )}
         </button>
       </div>
     </form>

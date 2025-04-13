@@ -18,8 +18,16 @@ import {
   LanguageIcon, 
   TagIcon,
   ArrowUpIcon,
-  ArrowDownIcon
+  ArrowDownIcon,
+  PlusIcon,
+  ChevronDownIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  XCircleIcon,
+  LockOpenIcon,
+  StarIcon
 } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 
 export default function Badges() {
   const { data: session, status } = useSession();
@@ -198,73 +206,89 @@ export default function Badges() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Badges</h1>
+      <div className="max-w-7xl mx-auto">
+        <div>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="page-heading">My Badges Collection</h1>
             {isTeacher && (
               <button
                 onClick={() => router.push('/badges/create')}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                className="interactive-btn"
               >
-                Create Badge
+                <PlusIcon className="h-5 w-5 mr-2 inline" />
+                Create New Badge
               </button>
             )}
           </div>
 
-          <div className="mb-6 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-            <div className="flex-1">
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="col-span-1">
+              <label htmlFor="category" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                 Filter by Category
               </label>
-              <select
-                id="category"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-              >
-                <option value="All">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category._id} value={category.name}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  id="category"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="input appearance-none pr-10"
+                >
+                  <option value="All">All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category._id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                  <ChevronDownIcon className="h-5 w-5" />
+                </div>
+              </div>
             </div>
             {!isTeacher && (
-              <div className="flex-1">
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div className="col-span-1">
+                <label htmlFor="status" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                   Filter by Status
                 </label>
-                <select
-                  id="status"
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="All">All Badges</option>
-                  <option value="Not Started">Not Started</option>
-                  <option value="Earned">Earned</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="status"
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="input appearance-none pr-10"
+                  >
+                    <option value="All">All Badges</option>
+                    <option value="Not Started">Not Started</option>
+                    <option value="Earned">Earned</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                    <ChevronDownIcon className="h-5 w-5" />
+                  </div>
+                </div>
               </div>
             )}
-            <div className="flex-1">
-              <label htmlFor="sortOrder" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="col-span-1">
+              <label htmlFor="sortOrder" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                 Sort By Date
               </label>
-              <div className="mt-1 flex items-center">
-                <select
-                  id="sortOrder"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
-                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                </select>
+              <div className="flex items-center">
+                <div className="relative flex-1">
+                  <select
+                    id="sortOrder"
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+                    className="input appearance-none pr-10"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                    <ChevronDownIcon className="h-5 w-5" />
+                  </div>
+                </div>
                 <button 
                   onClick={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
-                  className="ml-2 p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+                  className="ml-2 p-2 rounded-full bg-primary-100 text-primary-600 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 transition-colors"
                   aria-label={`Sort by ${sortOrder === 'newest' ? 'oldest' : 'newest'}`}
                 >
                   {sortOrder === 'newest' ? <ArrowDownIcon className="h-5 w-5" /> : <ArrowUpIcon className="h-5 w-5" />}
@@ -273,22 +297,25 @@ export default function Badges() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {filteredBadges.map((badge) => {
               const submissionStatus = !isTeacher ? getSubmissionStatus(badge._id) : undefined;
 
               return (
-                <div
+                <motion.div
                   key={badge._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                   onClick={() => router.push(`/badges/${badge._id}`)}
-                  className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200 cursor-pointer border-0"
+                  className="badge-card"
                 >
                   <div className="p-6">
                     <div className="flex flex-col h-full">
                       <div className="flex-1">
-                        <div className="flex justify-between items-start mb-4">
+                        <div className="flex justify-between items-start mb-6">
                           <span 
-                            className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium shadow-sm"
+                            className="badge-category"
                             style={{ 
                               backgroundColor: getCategoryColor(badge.category),
                               color: '#ffffff',
@@ -299,36 +326,58 @@ export default function Badges() {
                             {getCategoryName(badge.category)}
                           </span>
                         </div>
-                        <div className="relative aspect-square">
+                        <div className="relative aspect-square mb-6 overflow-hidden rounded-xl shadow-lg transform transition-transform hover:scale-105">
                           <Image
                             src={badge.image || '/placeholder-badge.png'}
                             alt={badge.name}
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover rounded-lg"
+                            className="object-cover hover:scale-110 transition-transform duration-500"
                             unoptimized={badge.image?.includes('cloudinary.com') || false}
                           />
                         </div>
-                        <div className="mt-4">
-                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{badge.name}</h3>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{badge.name}</h3>
                           {!isTeacher && (
-                            <div className="mt-1">
+                            <div className="mt-2 mb-4">
                               {(() => {
                                 const status = getSubmissionStatus(badge._id);
                                 return (
-                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+                                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+                                    {status === 'approved' && <CheckCircleIcon className="mr-1 h-4 w-4" />}
+                                    {status === 'pending' && <ClockIcon className="mr-1 h-4 w-4" />}
+                                    {status === 'rejected' && <XCircleIcon className="mr-1 h-4 w-4" />}
+                                    {!status && <LockOpenIcon className="mr-1 h-4 w-4" />}
                                     {getStatusText(status)}
                                   </span>
                                 );
                               })()}
                             </div>
                           )}
-                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{badge.description}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3">{badge.description}</p>
+                          <div className="mt-4 flex justify-between items-center">
+                            <div className="flex">
+                              {Array(5)
+                                .fill(0)
+                                .map((_, i) => (
+                                  <StarIcon
+                                    key={i}
+                                    className={`h-5 w-5 ${
+                                      i < badge.difficulty ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
+                                    }`}
+                                    fill={i < badge.difficulty ? 'currentColor' : 'none'}
+                                  />
+                                ))}
+                            </div>
+                            <button className="btn btn-primary px-4 py-2 text-xs">
+                              View Details
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
