@@ -184,7 +184,7 @@ export default function BadgePage({ params }: { params: { id: string } }) {
                   <span className={`badge-category flex items-center ${
                     badge.isPublic 
                       ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-primary-300'
                   }`}>
                     {badge.isPublic ? 
                       <EyeIcon className="h-4 w-4 mr-1" /> : 

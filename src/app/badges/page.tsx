@@ -123,7 +123,7 @@ export default function Badges() {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-primary-300';
     }
   };
 
